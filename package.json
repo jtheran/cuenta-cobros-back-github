@@ -28,33 +28,31 @@
   ],
   "author": "JMTB",
   "license": "MIT",
+  "devDependencies": {
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.10"
+  },
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
+    "check-disk-space": "^3.4.0",
     "colors": "^1.4.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "faker": "^6.6.6",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
     "jest": "^29.7.0",
     "jsonwebtoken": "^9.0.2",
-    "lsvbasenode": "file:",
-    "mongoose": "^8.2.0",
-    "multer": "^1.4.5-lts.1",
-    "node-cron": "^3.0.3",
+    "multer": "^2.0.0",
+    "os-utils": "^0.0.14",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
-    "prisma": "^5.8.1",
-    "qr-image": "^3.2.0",
-    "qrcode-terminal": "^0.12.0",
-    "supertest": "^6.3.4",
-    "whatsapp-web.js": "^1.23.0",
-    "winston": "^3.11.0",
-    "wwebjs-mongo": "^1.1.0"
-  },
-  "devDependencies": {
-    "@faker-js/faker": "^8.4.1",
-    "jest-html-reporters": "^3.1.7",
-    "morgan": "^1.10.0",
-    "nodemon": "^3.0.3"
+    "prisma": "^6.8.2",
+    "socket.io": "^4.8.1",
+    "speedtest-net": "^2.2.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.17.0"
   }
 }

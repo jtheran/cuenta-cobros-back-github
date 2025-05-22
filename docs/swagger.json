@@ -1,0 +1,135 @@
+{
+    "components": {
+      "schemas": {
+        "User": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "email": { "type": "string" },
+            "password": { "type": "string" },
+            "name": { "type": "string" },
+            "phone": { "type": "string" },
+            "role": { "type": "string" }
+          }
+        },
+        "Project": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "ref": { "type": "string" },
+            "name": { "type": "string" },
+            "status": { "type": "string" },
+            "scrum": { "type": "string" }
+          }
+        },
+        "Sprint": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "ref": { "type": "string" },
+            "numberTask": { "type": "integer" },
+            "taskTest": { "type": "string" },
+            "projectId": { "type": "string" }
+          }
+        },
+        "Task": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "ref": { "type": "string" },
+            "description": { "type": "string" },
+            "responsible": { "type": "string" },
+            "status": { "type": "string" },
+            "type": { "type": "string" },
+            "sprintId": { "type": "string" }
+          }
+        },
+        "TaskTest": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "ref": { "type": "string" },
+            "description": { "type": "string" },
+            "status": { "type": "string" },
+            "duration": { "type": "string" },
+            "sprintId": { "type": "string" },
+            "testerById": { "type": "string" },
+            "taskId": { "type": "string" }
+          }
+        },
+        "File": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "name": { "type": "string" },
+            "url": { "type": "string" },
+            "type": { "type": "string" },
+            "taskTestId": { "type": "string" },
+            "testCaseId": { "type": "string" },
+            "testById": { "type": "string" }
+          }
+        },
+        "TestCase": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "title": { "type": "string" },
+            "description": { "type": "string" },
+            "type": { "type": "string" },
+            "priority": { "type": "string" },
+            "createdBy": { "type": "string" },
+            "projectId": { "type": "string" }
+          }
+        },
+        "TestExecution": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "testCaseId": { "type": "string" },
+            "sprintId": { "type": "string" },
+            "status": { "type": "string" },
+            "notes": { "type": "string" },
+            "executedAt": { "type": "string", "format": "date-time" },
+            "executedById": { "type": "string" }
+          }
+        },
+        "Event": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "title": { "type": "string" },
+            "description": { "type": "string" },
+            "type": { "type": "string" },
+            "startTime": { "type": "string", "format": "date-time" },
+            "endTime": { "type": "string", "format": "date-time" },
+            "color": { "type": "string" },
+            "createdById": { "type": "string" }
+          }
+        },
+        "Notification": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "title": { "type": "string" },
+            "message": { "type": "string" },
+            "read": { "type": "boolean" },
+            "type": { "type": "string" },
+            "createdAt": { "type": "string", "format": "date-time" },
+            "userId": { "type": "string" }
+          }
+        },
+        "ScheduledTask": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "name": { "type": "string" },
+            "description": { "type": "string" },
+            "runAt": { "type": "string", "format": "date-time" },
+            "executed": { "type": "boolean" },
+            "createdAt": { "type": "string", "format": "date-time" }
+          }
+        }
+      }
+    }
+  }
+  

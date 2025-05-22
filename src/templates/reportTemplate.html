@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Informe de Resultados - QALSV</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f5f8fa; font-family: Arial, sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #1697be; padding: 40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden;">
+          
+          <!-- Header estilo navegador -->
+          <tr style="background-color: #0b19db; height: 40px;">
+            <td style="padding: 0 15px; color: #ffffff; font-weight: bold; font-size: 14px;">
+              <span style="display: inline-block; width: 10px; height: 10px; background: red; border-radius: 50%; margin-right: 5px;"></span>
+              <span style="display: inline-block; width: 10px; height: 10px; background: yellow; border-radius: 50%; margin-right: 5px;"></span>
+              <span style="display: inline-block; width: 10px; height: 10px; background: limegreen; border-radius: 50%;"></span>
+            </td>
+          </tr>
+
+          <!-- Título -->
+          <tr>
+            <td style="padding: 20px 30px;">
+              <h2 style="margin: 0 0 10px;">Informe de Resultados de Pruebas</h2>
+              <p style="margin: 0; color: #0a07ec;">Fecha: {{fecha}}</p>
+            </td>
+          </tr>
+
+          <!-- Resultados del dashboard -->
+          <tr>
+            <td style="padding: 20px 30px; color: #252323;">
+              <ul style="padding-left: 20px; font-size: 15px;">
+                <li><strong>✅ Pruebas exitosas:</strong> {{exitosas}}</li>
+                <li><strong>❌ Pruebas fallidas:</strong> {{fallidas}}</li>
+                <li><strong>⏳ Pruebas pendientes:</strong> {{pendientes}}</li>
+                <li><strong>🔍 Pruebas totales:</strong> {{total}}</li>
+              </ul>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 20px 30px; font-size: 12px; color: #999;">
+              <p>Este informe fue generado automáticamente por QALSV. No responder directamente a este correo.</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+

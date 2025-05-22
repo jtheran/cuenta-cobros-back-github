@@ -3,13 +3,15 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const config = {
-    port: process.env.PORT_DEV || 2048,
-    port_db: process.env.PORT_DB,
-    user_db: process.env.USER_DB,
-    pass_db: process.env.PASS_DB,
-    db: process.env.DB,
+    port: process.env.PORT || 2048,
     key: process.env.KEY_SECRET,
-};
+    hostMail: process.env.MAIL_HOST || '',
+    portMail: process.env.MAIL_PORT || '456',
+    salt: process.env.SALT || 10,
+    adminEmail: process.env.EMAIL_ADMIN || '',
+    passAdminEmail: process.env.PASS_EMAIL_ADMIN || '',
+    passAdmin: process.env.PASS_ADMIN || '',
+}
 
 
 module.exports = config;
