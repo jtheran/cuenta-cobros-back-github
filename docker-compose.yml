@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  base:
+    container_name: base-nodejs
+    build: .
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=mysql://db_user:db_password@mysql-db:3306/db_name
+    ports:
+      - '4393:4393'
+    volumes:
+      - .:/base
+      - /base/node_modules
+      - ./env_file:/base/.env
+    depends_on:
+      - mysql
+
+  mysql:
+    container_name: mysql-db
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root_pass_lsv
+      MYSQL_DATABASE: db_lsv
+      MYSQL_USER: db_user_lsv
+      MYSQL_PASSWORD: db_pass_lsv
+    ports:
+      - '3306:3306'
