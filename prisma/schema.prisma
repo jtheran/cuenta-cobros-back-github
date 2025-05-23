@@ -19,7 +19,7 @@ model Usuario {
   nombre           String
   apellido         String
   email            String            @unique
-  passwor         String
+  password         String
   role            String
   telefono         String?
   documentoIdentidad String

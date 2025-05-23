@@ -4,7 +4,7 @@ CREATE TABLE `Usuario` (
     `nombre` VARCHAR(191) NOT NULL,
     `apellido` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
-    `passwor` VARCHAR(191) NOT NULL,
+    `password` VARCHAR(191) NOT NULL,
     `role` VARCHAR(191) NOT NULL,
     `telefono` VARCHAR(191) NULL,
     `documentoIdentidad` VARCHAR(191) NOT NULL,
@@ -137,6 +137,19 @@ CREATE TABLE `EventoAuditoria` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `Notificacion` (
+    `id` VARCHAR(191) NOT NULL,
+    `contenido` VARCHAR(191) NOT NULL,
+    `read` BOOLEAN NOT NULL DEFAULT false,
+    `fechaCreacion` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `fechaActualizacion` DATETIME(3) NOT NULL,
+    `usuarioId` VARCHAR(191) NOT NULL,
+
+    INDEX `Notificacion_usuarioId_idx`(`usuarioId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `Contrato` ADD CONSTRAINT `Contrato_contratistaId_fkey` FOREIGN KEY (`contratistaId`) REFERENCES `Usuario`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -172,3 +185,6 @@ ALTER TABLE `Documento` ADD CONSTRAINT `Documento_cuentaCobroId_fkey` FOREIGN KE
 
 -- AddForeignKey
 ALTER TABLE `EventoAuditoria` ADD CONSTRAINT `EventoAuditoria_usuarioId_fkey` FOREIGN KEY (`usuarioId`) REFERENCES `Usuario`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Notificacion` ADD CONSTRAINT `Notificacion_usuarioId_fkey` FOREIGN KEY (`usuarioId`) REFERENCES `Usuario`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
