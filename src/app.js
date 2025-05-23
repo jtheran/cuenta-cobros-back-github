@@ -10,6 +10,7 @@ import fileRoutes from './routes/file.routes.js';
 import notifyRoutes from './routes/notification.routes.js';
 import emailRoutes from './routes/email.routes.js';
 import maintenaceRoutes from './routes/maintenance.route.js';
+import userRoutes from './routes/user.routes.js';
 
 //* INICIALIZATION
 const app = express();
@@ -31,6 +32,7 @@ app.use('/api', maintenaceRoutes);
 app.use('/api', fileRoutes);
 app.use('/api', emailRoutes);
 app.use('/api', notifyRoutes);
+app.use('/api', userRoutes);
 
 
 

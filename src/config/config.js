@@ -4,7 +4,8 @@ dotenv.config();
 
 const config = {
     port: process.env.PORT || 2048,
-    key: process.env.KEY_SECRET,
+    key: process.env.KEY_SECRET || 'zaqwer',
+    refreshKey: process.env.REFRESH_KEY || 'polik',
     hostMail: process.env.MAIL_HOST || '',
     portMail: process.env.MAIL_PORT || '456',
     salt: process.env.SALT || 10,

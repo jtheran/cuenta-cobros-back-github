@@ -5,6 +5,6 @@ import authorizeRoles from '../middlewares/auth.js';
 
 const router = express.Router();
 
-router.get('/metrics', passport.authenticate('jwt', { session: false}), authorizeRoles('admin'), getServerMetrics);
+router.get('/metrics', passport.authenticate('jwt', { session: false}), authorizeRoles(['admin']), getServerMetrics);
 
 export default router;

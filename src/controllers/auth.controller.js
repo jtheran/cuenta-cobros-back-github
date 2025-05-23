@@ -1,4 +1,6 @@
 import logger from '../logs/logger.js';
+import jwt from 'jsonwebtoken';
+import config from '../config/config.js';
 import { matchPass } from '../libs/bcrypt.js';
 import createToken from '../libs/jwt.js';
 import pkg from '@prisma/client';
@@ -34,10 +36,19 @@ export const login = async (req, res) => {
             role: user.role
         };
 
-        const token = createToken(data);
+        const payload = createToken(data);
+
+        await prisma.usuario.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                ultimoAcceso: new Date(),
+            }
+        });
 
         logger.info('LOGUEADO CORRECTAMENTE!!!');
-        return res.status(200).json({msg: 'LOGUEADO CORRECTAMENTE', access_token: token});
+        return res.status(200).json({msg: 'LOGUEADO CORRECTAMENTE', access_token: payload.token, refresh_token: payload.refreshToken });
     }catch(err){
         logger.error('ERROR INTERNO DEL SERVIDOR: ' + err.message);
         return res.status(500).json({msg: 'ERROR INTERNO DEL SERVIDOR: ' + err.message});
@@ -46,11 +57,44 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => {
     try{
-        res.header('Autorization', '').status(200).json({msg: 'HA SIDO DESLOGUEADO!!!'});
+        return res.header('Autorization', '').status(200).json({msg: 'HA SIDO DESLOGUEADO!!!'});
     }catch(err){
         logger.error('ERROR INTERNO DEL SERVIDOR: ' + err.message);
         return res.status(500).json({msg: 'ERROR INTERNO DEL SERVIDOR: ' + err.message});
     }
 };
+
+export const refreshToken = async (req, res) => {
+    try{
+        const { refreshToken } = req.body;
+
+        if(!refreshToken){
+            logger.warn('[JWT] REFRESH TOKEN REQUERIDO!!!!')
+            return res.status(400).json({ msg: 'REFRESH TOKEN REQUERIDO' });
+        }
+
+        const payload = jwt.verify(refreshToken, config.refreshKey);
+
+        if(!payload){
+            logger.warn('[JWT] VERIFICACION DE REFRESH TOKEN FALLADA');
+            return res.status(401).json({ msg: 'VERIFICACION DE REFRESH TOKEN FALLADA' });
+        }
+
+        const newAccessToken = jwt.sign({ id: payload.id, email: payload.email, role: payload.role }, config.key, {
+            expiresIn: '30m',
+        });
+
+        if(!newAccessToken){
+            logger.warn('[JWT] GENERACION DEL NUEVO TOKEN FALLADA');
+            return res.status(400).json({ msg: 'GENERACION DEL NUEVO TOKEN FALLADA' });
+        }
+
+        logger.info('[JWT] GENERACION DEL NUEVO TOKEN EXITOSA!!!');
+        return res.status(200).json({ msg: 'GENERACION DEL NUEVO TOKEN EXITOSA' });
+    }catch(err){
+        logger.error('[SERVER] ERROR INTERNO DEL SERVIDOR: ' + err.message);
+        return res.status(500).json({msg: 'ERROR INTERNO DEL SERVIDOR'});
+    }
+}
 
 
