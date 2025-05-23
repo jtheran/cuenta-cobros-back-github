@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import passport from 'passport';
-import upload from '../lib/multer.js';
-import { deleteFile, downloadFile, getFileById, getFiles, uploadFile }  from '../controller/file.controller.js';
+import upload from '../libs/multer.js';
+import { deleteFile, downloadFile, getFileById, getFiles, uploadFile }  from '../controllers/file.controller.js';
 import authorizeRoles from '../middlewares/auth.js';
  
 const router = Router();

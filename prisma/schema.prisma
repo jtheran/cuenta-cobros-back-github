@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  //output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -20,6 +20,7 @@ model Usuario {
   apellido         String
   email            String            @unique
   passwor         String
+  role            String
   telefono         String?
   documentoIdentidad String
   tipoDocumento    String
@@ -29,35 +30,15 @@ model Usuario {
   fechaActualizacion DateTime        @updatedAt
   
   // Relaciones
-  roles            RolUsuario[]
-  documentos       DocumentoDigital[]
   eventosAuditoria EventoAuditoria[]
   revisiones       Revision[]        @relation("Revisor")
   contratos        Contrato[]        @relation("Contratista")
   cuentasCobro     CuentaCobro[]    @relation("Contratista")
   comentarios      Comentario[]      @relation("AutorComentario")
+  pagos            Pago[]
+  notificaciones   Notificacion[]           
 }
 
-model Rol {
-  id              String       @id @default(uuid())
-  nombre          String       @unique
-  descripcion     String
-  permisos        String    // Array de permisos
-  fechaCreacion   DateTime    @default(now())
-  fechaActualizacion DateTime @updatedAt
-  
-  // Relaciones
-  usuarios        RolUsuario[]
-}
-
-model RolUsuario {
-  usuario         Usuario     @relation(fields: [usuarioId], references: [id])
-  usuarioId       String
-  rol             Rol         @relation(fields: [rolId], references: [id])
-  rolId           String
-
-  @@id([usuarioId, rolId])
-}
 
 model Contrato {
   id              String       @id @default(uuid())
@@ -91,7 +72,6 @@ model CuentaCobro {
   descripcionActividades String
   porcentajeEjecucion Float
   datosBancarios    Json
-  metadatos         Json?
   fechaRadicacion   DateTime?
   fechaCreacion     DateTime    @default(now())
   fechaActualizacion DateTime   @updatedAt
@@ -113,8 +93,8 @@ model CuentaCobro {
 model Revision {
   id              String       @id @default(uuid())
   observaciones   String?
-  metadatos       Json?
   fechaCreacion   DateTime    @default(now())
+  estado          String
   // Relaciones
   cuentaCobro     CuentaCobro @relation(fields: [cuentaCobroId], references: [id])
   cuentaCobroId   String
@@ -155,24 +135,14 @@ model Pago {
   // Relaciones
   cuentaCobro     CuentaCobro @relation(fields: [cuentaCobroId], references: [id])
   cuentaCobroId   String      @unique
+  financiero      Usuario     @relation(fields: [financieroId], references: [id])
+  financieroId     String 
+
 
   @@index([cuentaCobroId])
+  @@index([financieroId])
 }
 
-model DocumentoDigital {
-  id              String   @id @default(uuid())
-  nombre          String
-  tipo            String
-  url             String       // Ruta o URL del archivo
-  descripcion     String?
-  fechaSubida     DateTime     @default(now())
-
-  // Relaciones
-  usuario         Usuario      @relation(fields: [usuarioId], references: [id])
-  usuarioId       String
-
-  @@index([usuarioId])
-}
 
 model Documento {
   id              String   @id @default(uuid())
@@ -201,6 +171,20 @@ model EventoAuditoria {
   metadatos     Json?              // Datos adicionales relacionados al evento
 
   // Relación con Usuario
+  usuario       Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId     String
+
+  @@index([usuarioId])
+}
+
+model Notificacion {
+  id            String   @id @default(uuid())
+  contenido     String
+  read          Boolean  @default(false)
+  fechaCreacion     DateTime    @default(now())
+  fechaActualizacion DateTime   @updatedAt
+
+  //Relacion con Usuario
   usuario       Usuario  @relation(fields: [usuarioId], references: [id])
   usuarioId     String
 

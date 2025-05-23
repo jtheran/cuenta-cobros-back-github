@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import passport from 'passport';
-import { sendEmailBack, sendEmailMassiveBack }  from '../controller/email.controller.js';
+import { sendEmailBack, sendEmailMassiveBack }  from '../controllers/email.controller.js';
 import authorizeRoles from '../middlewares/auth.js';
  
 const router = Router();

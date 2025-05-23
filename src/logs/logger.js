@@ -1,6 +1,11 @@
-const winston = require('winston');
+import winston from 'winston';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import 'colors';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const { combine, timestamp, printf, colorize} = winston.format;
-require('colors');
 
 
 // Define el formato de los logs
@@ -37,5 +42,4 @@ const logger = winston.createLogger({
 
 // También puedes agregar un transporte para la consola si lo deseas
 logger.add(new winston.transports.Console());
-
-module.exports = logger;
+export default logger;

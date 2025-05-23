@@ -5,10 +5,11 @@ import helmet from 'helmet';
 import cors from 'cors';
 import passport from 'passport';
 import passportJWT from './middlewares/passport.js';
-const authRoutes = require('./routes/auth.routes.js');
+import authRoutes from './routes/auth.routes.js';
 import fileRoutes from './routes/file.routes.js';
 import notifyRoutes from './routes/notification.routes.js';
 import emailRoutes from './routes/email.routes.js';
+import maintenaceRoutes from './routes/maintenance.route.js';
 
 //* INICIALIZATION
 const app = express();
@@ -25,11 +26,14 @@ app.use(passport.initialize());
 passport.use(passportJWT);
 
 //* ROUTES
-app.use(authRoutes);
+app.use('/api',authRoutes);
 app.use('/api', maintenaceRoutes);
+app.use('/api', fileRoutes);
+app.use('/api', emailRoutes);
+app.use('/api', notifyRoutes);
 
 
 
 
-module.exports = server;
+export default server;
 

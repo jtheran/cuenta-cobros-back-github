@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import passport from 'passport';
-import { deletedNotification, getNotificationById, getNotifications, markAsRead }  from '../controller/notification.controller.js';
+import { deletedNotification, getNotificationById, getNotifications, markAsRead }  from '../controllers/notification.controller.js'
 import authorizeRoles from '../middlewares/auth.js';
  
 const router = Router();

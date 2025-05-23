@@ -8,19 +8,25 @@ const prisma = new PrismaClient();
 
 async function createAdminUser() {
     const adminEmail = config.adminEmail;
-    const existingAdmin = await prisma.user.findUnique({
+    const salt = await bcrypt.genSalt();
+
+    const existingAdmin = await prisma.usuario.findUnique({
         where: { email: adminEmail },
     });
 
     if (!existingAdmin) {
-        const hashedPassword = await bcrypt.hash(config.adminPass, 10);
-        await prisma.user.create({
+        const hashedPassword = await bcrypt.hash(config.passAdmin, salt);
+
+        await prisma.usuario.create({
             data: {
-                name: "Admin",
+                nombre: "Admin",
+                apellido: "LSV",
                 email: adminEmail,
-                password: hashedPassword,
-                role: "ADMIN",
-                phone: config.adminPhone,
+                passwor: hashedPassword,
+                role: "admin",
+                tipoDocumento: "CEDULA",
+                documentoIdentidad: "1047000111",
+
             },
         });
         logger.info("[SERVER] Admin user created successfully!");

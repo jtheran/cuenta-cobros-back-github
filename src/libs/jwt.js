@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
-const logger = require('../logs/logger.js');
-const config = require('../config/config.js');
+import jwt from 'jsonwebtoken';
+import logger from '../logs/logger.js';
+import config from '../config/config.js';
 
 const createToken = (payload) => {
 
@@ -15,4 +15,4 @@ const createToken = (payload) => {
     return token;
 }
 
-module.exports = createToken;
+export default createToken;

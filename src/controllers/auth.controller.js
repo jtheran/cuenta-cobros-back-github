@@ -1,8 +1,7 @@
-const logger = require('../logs/logger.js');
-const jwt = require('../libs/jwt.js');
+import logger from '../logs/logger.js';
 
 
-const login = async (req, res) => {
+export const login = async (req, res) => {
     try{
         
         logger.info('LOGUEADO CORRECTAMENTE!!!');
@@ -13,7 +12,7 @@ const login = async (req, res) => {
     }
 };
 
-const logout = (req, res) => {
+export const logout = (req, res) => {
     try{
         res.header('Autorization', '').status(200).json({msg: 'HA SIDO DESLOGUEADO!!!'});
     }catch(err){
@@ -22,18 +21,4 @@ const logout = (req, res) => {
     }
 };
 
-const register = async (req, res) => {
-    try{
-        
-    }catch(err){
-        logger.error('ERROR INTERNO DEL SERVIDOR: ' + err.message);
-        return res.status(500).json({msg: 'ERROR INTERNO DEL SERVIDOR: ' + err.message});
-    }
-};
 
-
-module.exports = {
-    login,
-    logout,
-    register
-};

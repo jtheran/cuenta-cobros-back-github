@@ -1,19 +1,21 @@
 {
-  "name": "lsvbasenode",
+  "name": "lsvcontractpay",
   "version": "1.0.0",
-  "description": "backend base de nodejs para poryectos, cuenta con jwt y passport, ademas de un orm de nodejs",
+  "description": "backend para plataforma web de cuentas de cobro para contratistas",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",
     "prisma:init": "prisma init --datasource-provider database",
     "prisma:migrate": "prisma migrate dev --name name-migration",
     "prisma:studio": "prisma studio",
+    "primsa:generate": "prisma generate",
     "test": "jest --coverage --config --detectOpenHandles",
     "test:filter": "jest --testPathPattern= --coverage --config --detectOpenHandles"
   },
   "repository": {
     "type": "git",
-    "url": "http://gitlab.lsv-tech.com/jtheran/lsvbasenodejs.git"
+    "url": "http://gitlab.lsv-tech.com/jtheran/cuenta-cobro-back.git"
   },
   "keywords": [
     "express",
@@ -33,6 +35,8 @@
     "nodemon": "^3.1.10"
   },
   "dependencies": {
+    "@prisma/client": "^6.8.2",
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "check-disk-space": "^3.4.0",
     "colors": "^1.4.0",
@@ -45,6 +49,7 @@
     "jest": "^29.7.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.0",
+    "nodemailer": "^7.0.3",
     "os-utils": "^0.0.14",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
