@@ -47,7 +47,7 @@ model Contrato {
   valor           Float
   fechaInicio     DateTime
   fechaFin        DateTime
-  estado          String 
+  estado          String      @default("ASIGNADO")
   tipoContrato    String
   metadatos       Json?       // Agregado campo metadatos que faltaba
   fechaCreacion   DateTime    @default(now())
