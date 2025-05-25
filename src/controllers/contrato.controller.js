@@ -109,3 +109,42 @@ export const createContract = async (req, res) => {
         return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});
     }
 }
+
+export const deleteContrac = async (req, res) => {
+    try{
+        const contratoID = req.params.id;
+
+        const contrato = await prisma.contrato.findUnique({
+            where: {
+                id: contratoID
+            },
+            include: {
+                contratista: true,
+                cuentasCobro: true,
+                documentos: true
+            }
+        });
+
+        if(!contrato){
+            logger.warn('[PRISMA] CONTRATO NO ENCONTRADO O NO EXISTEN!!!!');
+            return res.status(404).json({msg: 'CONTRATO NO ENCONTRADO O NO EXISTEN'});
+        }
+
+        const deleteContrato = await prisma.contrato.delete({
+            where: {
+                id: contrato.id
+            }
+        });
+
+        if(!deleteContrato){
+            logger.warn('[PRISMA] ELIMINACION DE CONTRATO FALLIDA!!!!');
+            return res.status(404).json({msg: 'ELIMINACION DE CONTRATO FALLIDA'});
+        }
+
+        logger.info('[PRISMA] CONTRATO ELIMINADO EXITOSAMENTE!!!');
+        return res.status(200).json({msg: 'CONTRATO ELIMINADO EXITOSAMENTE', contrato: deleteContrato})
+    }catch(err){
+        logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
+        return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});
+    }
+}
