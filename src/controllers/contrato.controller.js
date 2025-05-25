@@ -1,4 +1,5 @@
 import logger from '../logs/logger.js';
+import { generarNumeroContrato } from '../utils/functions.js';
 import pkg from '@prisma/client';
 const { PrismaClient } = pkg;
 
@@ -69,7 +70,6 @@ export const getContractByID = async (req, res) => {
 export const createContract = async (req, res) => {
     try{
         const {
-            numero,
             objeto,
             valor,
             fechaInicio,
@@ -81,7 +81,7 @@ export const createContract = async (req, res) => {
 
         const contrato = await prisma.contrato.create({
             data: {
-                numero,
+                numero: await generarNumeroContrato(),
                 objeto,
                 valor,
                 fechaInicio: new Date(fechaInicio),
