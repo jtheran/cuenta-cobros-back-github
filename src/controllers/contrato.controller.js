@@ -1,4 +1,5 @@
 import logger from '../logs/logger.js';
+import { getIO } from '../utils/socket.js';
 import { generarNumeroContrato } from '../utils/functions.js';
 import pkg from '@prisma/client';
 const { PrismaClient } = pkg;
@@ -70,6 +71,7 @@ export const getContractByID = async (req, res) => {
 
 export const createContract = async (req, res) => {
     try{
+        const io = getIO();
         const {
             objeto,
             valor,
@@ -103,6 +105,26 @@ export const createContract = async (req, res) => {
             return res.status(404).json({msg: 'CREACION DE CONTRATO FALLIDA'});
         }
 
+        const notificacion = await prisma.notificacion.create({
+            data: {
+                usuarioId: contratistaId,
+                contenido: `CONTRATO NUMERO ${contrato.numero} ASIGNADO!!!`,
+                asunto: 'ASIGNACION DE CONTRATO',
+            }
+        });
+
+        if(!notificacion){
+            logger.warn('[PRISMA] CREACION DE NOTIFICACION FALLIDA!!!!');
+            return res.status(404).json({msg: 'CREACION DE NOTIFICACION FALLIDA'});
+        }else{
+            logger.warn('[PRISMA] CREACION DE NOTIFICACION EXITOSA!!!!');
+            io.emit('notificacion', {
+                titulo: 'ASIGNACION DE CONTRATO',
+                mensaje: `CONTRATO NUMERO ${contrato.numero} ASIGNADO!!!`,
+                fecha: new Date(),
+            })
+        }
+
         logger.info('[PRISMA] CREACION DE CONTRATO EXITOSA!!!!');
         return res.status(201).json({msg: 'CREACION DE CONTRATO EXITOSA', contrato})
     }catch(err){
@@ -113,6 +135,7 @@ export const createContract = async (req, res) => {
 
 export const updateContract = async (req, res) => { 
     try{
+        const io = getIO();
         const contratoID = req.params.id;
 
         if (!req.files || req.files.length === 0) {
@@ -155,6 +178,26 @@ export const updateContract = async (req, res) => {
             logger.warn('[PRISMA] ACTUALIZACION DE CUENTA DE COBRO FALLIDA!!!!!');
             return res.status(400).json({msg: 'ACTUALIZACION DE CUENTA DE COBRO FALLIDA'});
         }
+
+        const notificacion = await prisma.notificacion.create({
+            data: {
+                usuarioId: contrato.contratistaId,
+                contenido: `CONTRATO NUMERO ${contrato.numero} HA PASADO A ESTADO ACTIVO!!!`,
+                asunto: 'CAMBIO DE ESTADO DEL CONTRATO',
+            }
+        });
+
+        if(!notificacion){
+            logger.warn('[PRISMA] CREACION DE NOTIFICACION FALLIDA!!!!');
+            return res.status(404).json({msg: 'CREACION DE NOTIFICACION FALLIDA'});
+        }else{
+            logger.warn('[PRISMA] CREACION DE NOTIFICACION EXITOSA!!!!');
+            io.emit('notificacion', {
+                titulo: 'CAMBIO DE ESTADO DEL CONTRATO',
+                mensaje: `CONTRATO NUMERO ${contrato.numero} HA PASADO A ESTADO ACTIVO!!!`,
+                fecha: new Date(),
+            })
+        }
         
         logger.info('[PRISMA] ACTUALIZACION DE CUENTA DE COBRO EXITOSA!!!!');
         return res.status(202).json({msg: 'ACTUALIZACION DE CUENTA DE COBRO EXITOSA', contrato: updateCuenta[1]});
@@ -166,6 +209,7 @@ export const updateContract = async (req, res) => {
 
 export const deleteContrac = async (req, res) => {
     try{
+        const io = getIO();
         const contratoID = req.params.id;
 
         const contrato = await prisma.contrato.findUnique({
