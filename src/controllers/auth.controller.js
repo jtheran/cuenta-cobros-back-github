@@ -14,7 +14,7 @@ const createToken = (payload) => {
     });
 
     const refreshToken = jwt.sign(payload, config.refreshKey, {
-        expiresIn: '7d', // Ejemplo: 7 días
+        expiresIn: '2d', // Ejemplo: 7 días
     });
 
     return {
@@ -59,8 +59,7 @@ export const login = async (req, res) => {
             id: user.id,
             email: user.email,
             role: user.role,
-            // Si tienes un campo 'name' en tu modelo de usuario, inclúyelo aquí
-            // name: user.name, 
+            name: user.name, 
         };
 
         // Genera ambos tokens
@@ -97,7 +96,7 @@ export const login = async (req, res) => {
                 id: user.id,
                 email: user.email,
                 role: user.role,
-                // name: user.name, // Incluye si está disponible
+                name: user.name,
             }
         });
     } catch (err) {
@@ -137,8 +136,8 @@ export const refreshToken = async (req, res) => {
         const data = {
             id: payload.id,
             email: payload.email,
-            role: payload.role
-            // name: payload.name, // Incluye si está en el payload original del refresh token
+            role: payload.role,
+            name: payload.name,
         };
 
         // Genera un nuevo access token
@@ -169,7 +168,7 @@ export const refreshToken = async (req, res) => {
                 id: payload.id,
                 email: payload.email,
                 role: payload.role,
-                // name: payload.name, // Incluye si está disponible en el payload
+                name: payload.name, 
             }
         });
     } catch (err) {
