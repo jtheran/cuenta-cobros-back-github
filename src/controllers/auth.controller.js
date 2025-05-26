@@ -213,19 +213,11 @@ export const authenticateToken = (req, res, next) => {
 // NUEVO ENDPOINT: /api/me
 export const getMe = (req, res) => {
     try {
-        // Si el middleware authenticateToken fue exitoso, req.user ya contiene los datos del usuario
-        if (req.user) {
-            logger.info('[AUTH] Datos de usuario obtenidos exitosamente para /api/me');
-            return res.status(200).json({
-                msg: 'Datos de usuario obtenidos exitosamente',
-                user: req.user // Devolvemos los datos del usuario adjuntos por el middleware
-            });
-        } else {
-            // Esto no debería ocurrir si authenticateToken funciona correctamente,
-            // ya que si no hay usuario, el middleware ya habría enviado un 401/403.
-            logger.warn('[AUTH] No se encontraron datos de usuario en la solicitud para /api/me');
-            return res.status(401).json({ msg: 'No autenticado o datos de usuario no disponibles.' });
-        }
+        logger.info('[AUTH] Datos de usuario obtenidos exitosamente para /api/me');
+        return res.status(200).json({
+            msg: 'Datos de usuario obtenidos exitosamente',
+            user: req.user // Si llegamos aquí, req.user siempre estará disponible
+        });
     } catch (err) {
         logger.error('[SERVER] ERROR INTERNO DEL SERVIDOR al obtener datos de usuario: ' + err.message);
         return res.status(500).json({ msg: 'ERROR INTERNO DEL SERVIDOR' });

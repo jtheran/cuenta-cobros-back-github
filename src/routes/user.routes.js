@@ -6,7 +6,7 @@ import { authenticateToken } from '../controllers/auth.controller.js';
 
 const router = Router();
 
-router.get('/user', passport.authenticate('jwt', { session: false}), authorizeRoles('admin'), getUsers);
+router.get('/user', authenticateToken, authorizeRoles('admin'), getUsers);
 
 router.get('/user/:id', passport.authenticate('jwt', { session: false}), authorizeRoles(['admin', 'contratista', 'revisor', 'financiero']), getUserByID);
 
