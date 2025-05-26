@@ -1,5 +1,5 @@
 import logger from '../logs/logger.js';
-import { generarNumeroCuenta } from '../utils/functions.js';
+import { generarNumeroCuenta, enviarNotificaciones } from '../utils/functions.js';
 import pkg from '@prisma/client';
 const { PrismaClient } = pkg;
 
@@ -126,6 +126,11 @@ export const createCuenta = async (req, res) => {
             return res.status(400).json({msg: 'CREACION DE CUENTA DE COBRO FALLIDA'});
         }
 
+        await enviarNotificaciones(`CREACION DE CUENTA DE COBRO # ${cuenta.numeroCuenta}`,
+            `SE HA CREADO LA CUENTA DE COBRO CON # ${cuenta.numeroCuenta} EN ESTADO DE ${cuenta.estado}`,
+            cuenta.contratista
+        );
+
         logger.info('[PRISMA] CREACION DE CUENTA DE COBRO EXITOSA!!!!');
         return res.status(202).json({msg: 'CREACION DE CUENTA DE COBRO EXITOSA', cuenta});
     }catch(err){
@@ -174,6 +179,13 @@ export const updateCuenta = async (req, res) => {
                 data: { 
                     estado,
                     fechaRadicacion: new Date(),
+                },
+                include: {
+                    contratista: true,
+                    contrato: true,
+                    revisiones: true,
+                    documentos: true,
+                    pagos: true
                 }
             })
         ]);
@@ -183,6 +195,11 @@ export const updateCuenta = async (req, res) => {
             return res.status(400).json({msg: 'ACTUALIZACION DE CUENTA DE COBRO FALLIDA'});
         }
         
+        await enviarNotificaciones(`ACTUALIZACION DEL ESTADO DE LA CUENTA # ${updateCuenta[1].numeroCuenta}`,
+            `SE HA ACTUALIZADO LA CUENTA DE COBRO # ${updateCuenta[1].numeroCuenta} DE ESTADO ${cuenta.estado} a ${updateCuenta[1].estado}`,
+            updateCuenta[1].contratista
+        );
+
         logger.info('[PRISMA] ACTUALIZACION DE CUENTA DE COBRO EXITOSA!!!!');
         return res.status(202).json({msg: 'ACTUALIZACION DE CUENTA DE COBRO EXITOSA', cuenta: updateCuenta[1]});
     }catch(err){
@@ -213,7 +230,16 @@ export const deleteCuenta = async (req, res) => {
             }),
             // 2. Eliminar la cuenta de cobro
             prisma.cuentaCobro.delete({
-                where: { id: cuentaID }
+                where: { 
+                    id: cuentaID
+                },
+                include: {
+                    contratista: true,
+                    contrato: true,
+                    revisiones: true,
+                    documentos: true,
+                    pagos: true
+                }
             })
         ]);
 
@@ -221,6 +247,11 @@ export const deleteCuenta = async (req, res) => {
             logger.warn('[PRISMA] ELIMINACION DE CUENTA DE COBRO FALLIDA!!!');
             return res.status(400).json({msg: 'ELIMINACION DE CUENTA DE COBRO FALLIDA'});
         }
+
+        await enviarNotificaciones(`SE HA ELIMINADO LA CUENTA DE COBRO # ${deleteCuenta[1].numeroCuenta}`,
+            `SE ELIMINO LA CUENTA DE COBRO CON # ${deleteCuenta[1].numeroCuenta} POR PARTE DEL ADMIN DE LA PLATAFORMA`,
+            deleteCuenta[1].contratista 
+        );
 
         logger.info('[PRISMA] ELIMINACION DE CUENTA DE COBRO EXITOSA!!!');
         return res.status(200).json({msg: 'ELIMINACION DE CUENTA DE COBRO EXITOSA', cuenta: deleteCuenta[1]});

@@ -1,10 +1,6 @@
 import { Router } from 'express';
-// Ya no necesitamos importar 'passport' en este archivo si lo reemplazamos
-// import passport from 'passport'; 
-import authorizeRoles from '../middlewares/auth.js'; // Asegúrate de que esta ruta sea correcta
+import { authenticateToken, authorizeRoles } from '../middlewares/auth.js'; 
 import { getContrats, getContractByID, createContract, deleteContrac, updateContract } from '../controllers/contrato.controller.js';
-// Importamos tu middleware authenticateToken
-import { authenticateToken } from '../controllers/auth.controller.js';
 import upload from '../libs/multer.js';
 
 
