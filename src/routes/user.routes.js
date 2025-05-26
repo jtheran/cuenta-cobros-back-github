@@ -2,6 +2,7 @@ import { Router } from 'express';
 import passport from 'passport';
 import authorizeRoles from '../middlewares/auth.js';
 import { getUsers, getUserByID, createUser, updateUser, deleteUser } from '../controllers/user.controller.js';
+import { authenticateToken } from '../controllers/auth.controller.js';
 
 const router = Router();
 
@@ -9,7 +10,7 @@ router.get('/user', passport.authenticate('jwt', { session: false}), authorizeRo
 
 router.get('/user/:id', passport.authenticate('jwt', { session: false}), authorizeRoles(['admin', 'contratista', 'revisor', 'financiero']), getUserByID);
 
-router.post('/user', passport.authenticate('jwt', { session: false}), authorizeRoles(['admin']), createUser);
+router.post('/user', authenticateToken, authorizeRoles(['admin']), createUser);
 
 router.put('/user/:id', passport.authenticate('jwt', { session: false}), authorizeRoles(['admin']), updateUser);
 
