@@ -12,6 +12,8 @@ import emailRoutes from './routes/email.routes.js';
 import maintenaceRoutes from './routes/maintenance.route.js';
 import userRoutes from './routes/user.routes.js';
 import contractRoutes from './routes/contrato.routes.js';
+import cuentaRoputes from './routes/cuenta.routes.js'
+import revisionRoutes from './routes/revision.routes.js';
 
 //* INICIALIZATION
 const app = express();
@@ -35,8 +37,8 @@ app.use('/api', emailRoutes);
 app.use('/api', notifyRoutes);
 app.use('/api', userRoutes);
 app.use('/api', contractRoutes);
-
-
+app.use('/api', cuentaRoputes);
+app.use('/api', revisionRoutes);
 
 
 export default server;

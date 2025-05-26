@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `CuentaCobro` MODIFY `estado` VARCHAR(191) NOT NULL DEFAULT 'CREADA';

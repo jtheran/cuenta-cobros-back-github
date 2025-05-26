@@ -37,12 +37,12 @@ export const generarNumeroCuenta = async () => {
 
     const ultimaCuenta = await prisma.cuentaCobro.findFirst({
         where: {
-            numero: {
+            numeroCuenta: {
                 startsWith: `CC-${añoActual}`
             }
         },
         orderBy: {
-            numero: 'desc'
+            numeroCuenta: 'desc'
         }
     });
 

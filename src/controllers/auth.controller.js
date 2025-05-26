@@ -90,7 +90,7 @@ export const refreshToken = async (req, res) => {
         }
 
         logger.info('[JWT] GENERACION DEL NUEVO TOKEN EXITOSA!!!');
-        return res.status(200).json({ msg: 'GENERACION DEL NUEVO TOKEN EXITOSA' });
+        return res.status(200).json({ msg: 'GENERACION DEL NUEVO TOKEN EXITOSA', token: newAccessToken });
     }catch(err){
         logger.error('[SERVER] ERROR INTERNO DEL SERVIDOR: ' + err.message);
         return res.status(500).json({msg: 'ERROR INTERNO DEL SERVIDOR'});
