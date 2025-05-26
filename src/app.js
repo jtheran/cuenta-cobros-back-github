@@ -4,8 +4,8 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser'; // Importar cookie-parser
 import cors from 'cors';
-import passport from 'passport';
-import passportJWT from './middlewares/passport.js';
+//import passport from 'passport';
+//import passportJWT from './middlewares/passport.js';
 import authRoutes from './routes/auth.routes.js';
 import fileRoutes from './routes/file.routes.js';
 import notifyRoutes from './routes/notification.routes.js';
@@ -32,8 +32,8 @@ app.use(cookieParser()); // Usar el middleware de cookie-parser
 app.use(express.json());
 app.use(morgan('morgan'));
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(passport.initialize());
-passport.use(passportJWT);
+//app.use(passport.initialize());
+//passport.use(passportJWT);
 
 //* ROUTES
 app.use('/api', authRoutes);

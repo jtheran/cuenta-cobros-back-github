@@ -1,5 +1,5 @@
 import logger from '../logs/logger.js';
-import { generarNumeroContrato } from '../utils/functions.js';
+import { generarNumeroContrato, enviarNotificaciones } from '../utils/functions.js';
 import pkg from '@prisma/client';
 const { PrismaClient } = pkg;
 
@@ -103,6 +103,8 @@ export const createContract = async (req, res) => {
             return res.status(404).json({msg: 'CREACION DE CONTRATO FALLIDA'});
         }
 
+        await enviarNotificaciones(`CREACION DE CONTRATO # ${contrato.numero}`, `CONTRATO CREADO Y ASIGNADO A: ${contrato.contratista.nombre}  ${contrato.contratista.apellido}`, contrato.contratista);
+
         logger.info('[PRISMA] CREACION DE CONTRATO EXITOSA!!!!');
         return res.status(201).json({msg: 'CREACION DE CONTRATO EXITOSA', contrato})
     }catch(err){
@@ -139,7 +141,7 @@ export const updateContract = async (req, res) => {
             descripcion: req.body.descripcion || 'SIN DESCRIPCION',
         }));
 
-        const updateCuenta = await prisma.$transaction([
+        const updateContrato = await prisma.$transaction([
             prisma.documento.createMany({ data: documentosData }),
             prisma.contrato.update({
                 where: { 
@@ -147,17 +149,24 @@ export const updateContract = async (req, res) => {
                 },
                 data: { 
                     estado: 'ACTIVO',
+                },
+                include: {
+                    contratista: true,
+                    cuentasCobro: true,
+                    documentos: true
                 }
             })
         ]);
 
-        if(!updateCuenta){
+        if(!updateContrato){
             logger.warn('[PRISMA] ACTUALIZACION DE CUENTA DE COBRO FALLIDA!!!!!');
             return res.status(400).json({msg: 'ACTUALIZACION DE CUENTA DE COBRO FALLIDA'});
         }
+
+        await enviarNotificaciones(`CONTRATO # ${updateContrato[1].numero} ACTUALIZADO DE ESTADO`, `CONTRATO A PASADO DE ESTADO ${contrato.estado} a ${updateContrato[1].estado}`, updateContrato[1].contratista);
         
         logger.info('[PRISMA] ACTUALIZACION DE CUENTA DE COBRO EXITOSA!!!!');
-        return res.status(202).json({msg: 'ACTUALIZACION DE CUENTA DE COBRO EXITOSA', contrato: updateCuenta[1]});
+        return res.status(202).json({msg: 'ACTUALIZACION DE CUENTA DE COBRO EXITOSA', contrato: updateContrato[1]});
     }catch(err){
         logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
         return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});
@@ -187,6 +196,11 @@ export const deleteContrac = async (req, res) => {
         const deleteContrato = await prisma.contrato.delete({
             where: {
                 id: contrato.id
+            },
+            include: {
+                contratista: true,
+                cuentasCobro: true,
+                documentos: true
             }
         });
 
@@ -194,6 +208,8 @@ export const deleteContrac = async (req, res) => {
             logger.warn('[PRISMA] ELIMINACION DE CONTRATO FALLIDA!!!!');
             return res.status(404).json({msg: 'ELIMINACION DE CONTRATO FALLIDA'});
         }
+
+        await enviarNotificaciones(`SE HA ELIMINADO EL CONTRATO # ${deleteContrato.numero}`, `EL CONTRATO HA SIDO ELIMINADO POR PARTE DEL ADMIN DE LA PLATAFORMA`, deleteContrato.contratista);
 
         logger.info('[PRISMA] CONTRATO ELIMINADO EXITOSAMENTE!!!');
         return res.status(200).json({msg: 'CONTRATO ELIMINADO EXITOSAMENTE', contrato: deleteContrato})

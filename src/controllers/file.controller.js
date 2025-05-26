@@ -14,7 +14,7 @@ export const getFiles = async (req, res) => {
 
 
         const [files, total] = await Promise.all([
-            prisma.file.findMany({
+            prisma.documento.findMany({
                 skip,
                 take: limit,
                 include: {
@@ -22,7 +22,7 @@ export const getFiles = async (req, res) => {
                     testCase: true,
                 }
             }),
-            prisma.file.count(),
+            prisma.documento.count(),
         ]);
 
         if(!files){
@@ -38,71 +38,12 @@ export const getFiles = async (req, res) => {
     }
 }
 
-export const getFileById = async (req, res) => {
-    try{
-        const { id } = req.params;
-        const file = await prisma.file.findUnique({
-            where: {
-                id
-            },
-            include: {
-                taskTest: true,
-                testCase: true,
-            }
-        });
-
-        if(!file){
-            logger.warn('[PRISMA] FILE NOT FOUND!!!!');
-            return res.status(404).json({msg: 'FILE NOT FOUND'});
-        }
-
-        logger.info('[PRISMA] FILE FOUND!!!!!');
-        return res.status(200).json({msg: 'FILE FOUND', file});
-    }catch(err){
-        logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
-        return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});
-    }
-}
-
-export const uploadFile = async (req, res) => {
-    try{
-        const { taskTestId, testCaseId } = req.body;
-        const file = req.file;
-
-        if(!file){
-            logger.warn('[PRISMA] FILE NOT FOUND!!!');
-            return res.status(404).json({ msg: 'FILE NOT FOUND' });
-        } 
-
-        const newFile = await prisma.file.create({
-            data: {
-                name: file.originalname,
-                url: `/docs/${file.filename}`,
-                type: file.mimetype,
-                taskTestId,
-                testCaseId,
-                testById: req.user.id
-            }
-        });
-
-        if(!newFile){
-            logger.error('[PRISMA] FILE NOT CREATED!!!');
-            return res.status(400).json({ msg: 'FILE NOT CREATED' });
-        }
-
-        logger.info('[PRISMA] FILE CREATED!!!!');
-        return res.status(201).json({msg: 'FILE CREATED', file: newFile });
-    }catch(err){
-        logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
-        return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});
-    }
-}
 
 export const deleteFile = async (req, res) => {
     try{
         const { id } = req.params;
 
-        const file = await prisma.file.findUnique({
+        const file = await prisma.documento.findUnique({
             where: {
                 id
             }
@@ -113,14 +54,14 @@ export const deleteFile = async (req, res) => {
             return res.status(404).json({msg: 'FILE NOT FOUND'});
         }
 
-        const filepath = path.join('docs', path.basename(file.url));
+        const filepath = path.join('docs', path.basename(file.name));
         fs.unlink(filepath, (err) => {
             if(err){
                 logger.warn('[FILE] No se pudo borrar el archivo físico: ', err.message);
-                return res.status(400).json({msg: 'NO SE PUDO ELIMINAR ARCHIVO FISICO: '+err.message });
+                return res.status(400).json({msg: 'NO SE PUDO ELIMINAR ARCHIVO FISICO'});
             } 
         });
-        const deleteFile = await prisma.file.delete({
+        const deleteFile = await prisma.documento.delete({
             where: {
                 id
             }
@@ -142,9 +83,9 @@ export const deleteFile = async (req, res) => {
 export const downloadFile = async (req, res) => {
     try{
         const { id } = req.params;
-        const file = await prisma.file.findUnique({ 
+        const file = await prisma.documento.findUnique({ 
             where: {
-                    id 
+                id 
             } 
         });
         if(!file){
@@ -152,7 +93,7 @@ export const downloadFile = async (req, res) => {
             return res.status(404).json({msg: 'FILE NOT FOUND'});
         } 
 
-        const filepath = path.join('docs', path.basename(file.url));
+        const filepath = path.join('docs', path.basename(file.name));
         logger.info('[FILE] FILE DONWLOAD!!!');
         return res.status(200).download(filepath, file.name);
     }catch(err){

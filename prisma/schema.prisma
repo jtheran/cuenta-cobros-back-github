@@ -93,7 +93,7 @@ model Revision {
   observaciones   String?
   fechaCreacion   DateTime    @default(now())
   estado          String
-  
+
   // Relaciones
   cuentaCobro     CuentaCobro @relation(fields: [cuentaCobroId], references: [id])
   cuentaCobroId   String
@@ -178,6 +178,7 @@ model EventoAuditoria {
 
 model Notificacion {
   id            String   @id @default(uuid())
+  asunto        String
   contenido     String
   read          Boolean  @default(false)
   fechaCreacion     DateTime    @default(now())

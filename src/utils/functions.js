@@ -1,4 +1,6 @@
 import logger from '../logs/logger.js';
+import { getIO } from './socket.js';
+import { sendEmail } from '../services/nodemailer.js';
 import pkg from '@prisma/client';
 const { PrismaClient } = pkg;
 
@@ -83,3 +85,31 @@ export const calcularPorcentajeEjecucion = (periodoInicio, periodoFin) => {
     return Math.round(porcentaje); 
 };
 
+export const enviarNotificaciones = async (titulo, contenido, user) => {
+    try{
+        const io = await getIO();
+        const notificacion = await prisma.notificacion.create({
+            data: {
+                usuarioId: user.id,
+                contenido: contenido,
+                asunto: titulo,
+            }
+        });
+
+        if(!notificacion){
+            logger.warn('[PRISMA] CREACION DE NOTIFICACION FALLIDA!!!!');
+            return res.status(404).json({msg: 'CREACION DE NOTIFICACION FALLIDA'});
+        }else{
+            logger.warn('[PRISMA] CREACION DE NOTIFICACION EXITOSA!!!!');
+            io.emit('notificacion', {
+                titulo,
+                contenido,
+                fecha: new Date(),
+            });
+            await sendEmail(user.email, titulo, contenido, user.name);
+        }
+    }catch(err){
+        logger.error('[SERVER] ERROR AL GENERAR NOTIFICACIONES!!!!');
+        return new Error('ERROR AL GENERAR NOTIFICACIONES');
+    }
+}

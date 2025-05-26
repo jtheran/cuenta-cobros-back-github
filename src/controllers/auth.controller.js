@@ -7,22 +7,6 @@ const { PrismaClient } = pkg;
 
 const prisma = new PrismaClient();
 
-// Función para crear tokens (no cambia, solo genera los strings)
-const createToken = (payload) => {
-    const accessToken = jwt.sign(payload, config.key, {
-        expiresIn: '30m', // Ejemplo: 30 minutos
-    });
-
-    const refreshToken = jwt.sign(payload, config.refreshKey, {
-        expiresIn: '2d', // Ejemplo: 7 días
-    });
-
-    return {
-        accessToken,
-        refreshToken,
-    };
-};
-
 // Configuración de la cookie (puedes moverla a un archivo de configuración si es necesario)
 // NOTA: En producción, 'secure' debe ser 'true' para HTTPS.
 const cookieOptions = {
@@ -186,30 +170,6 @@ export const refreshToken = async (req, res) => {
     }
 }
 
-// Middleware de autenticación para proteger rutas
-export const authenticateToken = (req, res, next) => {
-    const accessToken = req.cookies.accessToken; // Obtener el access token de la cookie
-
-    if (!accessToken) {
-        return res.status(401).json({ msg: 'NO AUTORIZADO: ACCESS TOKEN FALTANTE' });
-    }
-
-    try {
-        const payload = jwt.verify(accessToken, config.key);
-        req.user = payload; // Adjuntar el payload del usuario a la solicitud
-        next();
-    } catch (err) {
-        if (err instanceof jwt.TokenExpiredError) {
-            // Si el access token ha expirado, el frontend deberá intentar el refresh.
-            // Aquí se devuelve un 401 para que el interceptor de Axios actúe.
-            return res.status(401).json({ msg: 'ACCESS TOKEN EXPIRADO' });
-        } else if (err instanceof jwt.JsonWebTokenError) {
-            return res.status(403).json({ msg: 'ACCESS TOKEN INVÁLIDO' });
-        }
-        return res.status(500).json({ msg: 'ERROR DE AUTENTICACIÓN' });
-    }
-};
-
 // NUEVO ENDPOINT: /api/me
 export const getMe = (req, res) => {
     try {
@@ -219,7 +179,7 @@ export const getMe = (req, res) => {
             user: req.user // Si llegamos aquí, req.user siempre estará disponible
         });
     } catch (err) {
-        logger.error('[SERVER] ERROR INTERNO DEL SERVIDOR al obtener datos de usuario: ' + err.message);
+        logger.error('[SERVER] ERROR INTERNO DEL SERVIDOR: ' + err.message);
         return res.status(500).json({ msg: 'ERROR INTERNO DEL SERVIDOR' });
     }
 };
