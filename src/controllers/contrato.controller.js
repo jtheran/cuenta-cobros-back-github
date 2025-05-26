@@ -12,6 +12,7 @@ export  const getContrats = async (req, res) => {
         if (req.user.role === 'contratista') {
             filtros.contratistaId = req.user.id;
         }
+        
         const contratos = await prisma.contrato.findMany({
             where: filtros,
             include: {
@@ -104,6 +105,59 @@ export const createContract = async (req, res) => {
 
         logger.info('[PRISMA] CREACION DE CONTRATO EXITOSA!!!!');
         return res.status(201).json({msg: 'CREACION DE CONTRATO EXITOSA', contrato})
+    }catch(err){
+        logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
+        return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});
+    }
+}
+
+export const updateContract = async (req, res) => { 
+    try{
+        const contratoID = req.params.id;
+
+        if (!req.files || req.files.length === 0) {
+            logger.warn('[PRISMA] NO SE HAN CARGADO LOS ARCHIVOS NECESARIOS!!!!!')
+            return res.status(400).json({ msg: 'NO SE HAN CARGADO LOS ARCHIVOS NECESARIOS'});
+        }
+
+        const contrato = await prisma.contrato.findUnique({
+            where: {
+                id: contratoID,
+            }
+        });
+        
+        if(!contrato){
+            logger.warn('[PRISMA] CONTRATO NO ENCONTRADA!!!');
+            return res.status(404).json({msg: 'CONTRATO NO ENCONTRADA'});
+        }
+
+        const documentosData = req.files.map(file => ({
+            nombre: file.originalname,
+            tipo: file.mimetype,
+            url: `/docs/${file.filename}`,
+            contratoId: contratoID,
+            descripcion: req.body.descripcion || 'SIN DESCRIPCION',
+        }));
+
+        const updateCuenta = await prisma.$transaction([
+            prisma.documento.createMany({ data: documentosData }),
+            prisma.contrato.update({
+                where: { 
+                    id: contrato.id,
+                },
+                data: { 
+                    estado: 'ACTIVO',
+                }
+            })
+        ]);
+
+        if(!updateCuenta){
+            logger.warn('[PRISMA] ACTUALIZACION DE CUENTA DE COBRO FALLIDA!!!!!');
+            return res.status(400).json({msg: 'ACTUALIZACION DE CUENTA DE COBRO FALLIDA'});
+        }
+        
+        logger.info('[PRISMA] ACTUALIZACION DE CUENTA DE COBRO EXITOSA!!!!');
+        return res.status(202).json({msg: 'ACTUALIZACION DE CUENTA DE COBRO EXITOSA', contrato: updateCuenta[1]});
     }catch(err){
         logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
         return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});

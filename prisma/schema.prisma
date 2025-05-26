@@ -68,9 +68,8 @@ model CuentaCobro {
   valor             Float
   periodoInicio     DateTime
   periodoFin        DateTime
-  estado            String
+  estado            String      @default("CREADA")
   descripcionActividades String
-  porcentajeEjecucion Float
   datosBancarios    Json
   fechaRadicacion   DateTime?
   fechaCreacion     DateTime    @default(now())
@@ -83,8 +82,7 @@ model CuentaCobro {
   contratistaId     String
   revisiones        Revision[]
   documentos        Documento[]
-
-  pago              Pago?
+  pagos              Pago[]
 
   @@index([contratoId])
   @@index([contratistaId])
@@ -95,6 +93,7 @@ model Revision {
   observaciones   String?
   fechaCreacion   DateTime    @default(now())
   estado          String
+  
   // Relaciones
   cuentaCobro     CuentaCobro @relation(fields: [cuentaCobroId], references: [id])
   cuentaCobroId   String

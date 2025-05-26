@@ -17,4 +17,7 @@ router.post('/contract', authenticateToken, authorizeRoles('admin'), createContr
 
 router.delete('/contract/:id', authenticateToken, authorizeRoles('admin'), deleteContrac);
 
+router.put('/contract/:id', authenticateToken, authorizeRoles('admin'), upload.array('files', 5), updateContract);
+
+
 export default router;
