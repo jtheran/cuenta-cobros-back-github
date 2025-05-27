@@ -124,12 +124,13 @@ export const createCuenta = async (req, res) => {
         if(!cuenta){
             logger.warn('[PRISMA] CREACION DE CUENTA DE COBRO FALLIDA!!!!!');
             return res.status(400).json({msg: 'CREACION DE CUENTA DE COBRO FALLIDA'});
-        }
+        }else{
 
-        await enviarNotificaciones(`CREACION DE CUENTA DE COBRO # ${cuenta.numeroCuenta}`,
-            `SE HA CREADO LA CUENTA DE COBRO CON # ${cuenta.numeroCuenta} EN ESTADO DE ${cuenta.estado}`,
-            cuenta.contratista
-        );
+            await enviarNotificaciones(`CREACION DE CUENTA DE COBRO # ${cuenta.numeroCuenta}`,
+                `SE HA CREADO LA CUENTA DE COBRO CON # ${cuenta.numeroCuenta} EN ESTADO DE ${cuenta.estado}`,
+                cuenta.contratista
+            );
+        }
 
         logger.info('[PRISMA] CREACION DE CUENTA DE COBRO EXITOSA!!!!');
         return res.status(202).json({msg: 'CREACION DE CUENTA DE COBRO EXITOSA', cuenta});
@@ -193,12 +194,13 @@ export const updateCuenta = async (req, res) => {
         if(!updateCuenta){
             logger.warn('[PRISMA] ACTUALIZACION DE CUENTA DE COBRO FALLIDA!!!!!');
             return res.status(400).json({msg: 'ACTUALIZACION DE CUENTA DE COBRO FALLIDA'});
-        }
+        }else{
         
-        await enviarNotificaciones(`ACTUALIZACION DEL ESTADO DE LA CUENTA # ${updateCuenta[1].numeroCuenta}`,
-            `SE HA ACTUALIZADO LA CUENTA DE COBRO # ${updateCuenta[1].numeroCuenta} DE ESTADO ${cuenta.estado} a ${updateCuenta[1].estado}`,
-            updateCuenta[1].contratista
-        );
+            await enviarNotificaciones(`ACTUALIZACION DEL ESTADO DE LA CUENTA # ${updateCuenta[1].numeroCuenta}`,
+                `SE HA ACTUALIZADO LA CUENTA DE COBRO # ${updateCuenta[1].numeroCuenta} DE ESTADO ${cuenta.estado} a ${updateCuenta[1].estado}`,
+                updateCuenta[1].contratista
+            );
+        }
 
         logger.info('[PRISMA] ACTUALIZACION DE CUENTA DE COBRO EXITOSA!!!!');
         return res.status(202).json({msg: 'ACTUALIZACION DE CUENTA DE COBRO EXITOSA', cuenta: updateCuenta[1]});

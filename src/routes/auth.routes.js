@@ -1,5 +1,4 @@
 import { Router } from 'express';
-// import passport from 'passport'; // Podrías quitarlo si no lo usas en otras partes
 import { login, logout, refreshToken, getMe } from '../controllers/auth.controller.js';
 import { authenticateToken, authorizeRoles } from '../middlewares/auth.js';
 

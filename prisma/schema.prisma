@@ -82,7 +82,7 @@ model CuentaCobro {
   contratistaId     String
   revisiones        Revision[]
   documentos        Documento[]
-  pagos              Pago[]
+  pagos             Pago[]
 
   @@index([contratoId])
   @@index([contratistaId])
@@ -133,7 +133,7 @@ model Pago {
   
   // Relaciones
   cuentaCobro     CuentaCobro @relation(fields: [cuentaCobroId], references: [id])
-  cuentaCobroId   String      @unique
+  cuentaCobroId   String     
   financiero      Usuario     @relation(fields: [financieroId], references: [id])
   financieroId     String 
 

@@ -75,7 +75,6 @@ export const createContract = async (req, res) => {
             valor,
             fechaInicio,
             fechaFin,
-            estado,
             tipoContrato,
             contratistaId,
         } = req.body;
@@ -87,7 +86,7 @@ export const createContract = async (req, res) => {
                 valor,
                 fechaInicio: new Date(fechaInicio),
                 fechaFin: new Date(fechaFin),
-                estado,
+                estado: 'ASIGNADO',
                 tipoContrato,
                 contratistaId,
             },
@@ -103,7 +102,10 @@ export const createContract = async (req, res) => {
             return res.status(404).json({msg: 'CREACION DE CONTRATO FALLIDA'});
         }
 
-        await enviarNotificaciones(`CREACION DE CONTRATO # ${contrato.numero}`, `CONTRATO CREADO Y ASIGNADO A: ${contrato.contratista.nombre}  ${contrato.contratista.apellido}`, contrato.contratista);
+        await enviarNotificaciones(`CREACION DE CONTRATO # ${contrato.numero}`,
+            `CONTRATO CREADO Y ASIGNADO A: ${contrato.contratista.nombre}  ${contrato.contratista.apellido}`,
+            contrato.contratista
+        );
 
         logger.info('[PRISMA] CREACION DE CONTRATO EXITOSA!!!!');
         return res.status(201).json({msg: 'CREACION DE CONTRATO EXITOSA', contrato})
@@ -129,8 +131,8 @@ export const updateContract = async (req, res) => {
         });
         
         if(!contrato){
-            logger.warn('[PRISMA] CONTRATO NO ENCONTRADA!!!');
-            return res.status(404).json({msg: 'CONTRATO NO ENCONTRADA'});
+            logger.warn('[PRISMA] CONTRATO NO ENCONTRADO!!!');
+            return res.status(404).json({msg: 'CONTRATO NO ENCONTRADO'});
         }
 
         const documentosData = req.files.map(file => ({
@@ -163,7 +165,10 @@ export const updateContract = async (req, res) => {
             return res.status(400).json({msg: 'ACTUALIZACION DE CUENTA DE COBRO FALLIDA'});
         }
 
-        await enviarNotificaciones(`CONTRATO # ${updateContrato[1].numero} ACTUALIZADO DE ESTADO`, `CONTRATO A PASADO DE ESTADO ${contrato.estado} a ${updateContrato[1].estado}`, updateContrato[1].contratista);
+        await enviarNotificaciones(`CONTRATO # ${updateContrato[1].numero} ACTUALIZADO DE ESTADO`,
+            `CONTRATO A PASADO DE ESTADO ${contrato.estado} a ${updateContrato[1].estado}`,
+            updateContrato[1].contratista
+        );
         
         logger.info('[PRISMA] ACTUALIZACION DE CUENTA DE COBRO EXITOSA!!!!');
         return res.status(202).json({msg: 'ACTUALIZACION DE CUENTA DE COBRO EXITOSA', contrato: updateContrato[1]});

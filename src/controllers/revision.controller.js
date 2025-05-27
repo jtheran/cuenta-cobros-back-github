@@ -1,4 +1,5 @@
 import logger from '../logs/logger.js';
+import { enviarNotificaciones } from '../utils/functions.js';
 import pkg from '@prisma/client';
 const { PrismaClient } = pkg;
 
@@ -75,6 +76,15 @@ export const createRevision = async (req, res) => {
                 cuentaCobroId,
                 estado,
                 revisorId: revisorID,
+            },
+            include: {
+                cuentaCobro: {
+                    include: {
+                        contratista: true
+                    }
+                },
+                comentarios: true,
+                revisor: true
             }
         });
 
@@ -82,6 +92,11 @@ export const createRevision = async (req, res) => {
             logger.warn('[PRISMA] CREACION DE REVISION FALLIDA!!!');
             return res.status(400).json({msg: 'CREACION DE REVISION FALLIDA'});
         }
+
+        await enviarNotificaciones(`REVISION CREADA PARA LA CUENTA DE COBRO # ${revision.cuentaCobro.numeroCuenta}`,
+            `SE HA CREADO LA REVISION PARA LA CUENTA DE COBRO # ${revision.cuentaCobro.numeroCuenta} POR PARTE DEL REVSION ${revision.revisor.nombre} ${revision.revisor.apellido}`,
+            revision.cuentaCobro.contratista
+        );
 
         logger.info('[PRISMA] CREACION DE REVISION EXITOSA!!!');
         return res.status(200).json({msg: 'CREACION DE REVISION EXITOSA', revision});
@@ -103,6 +118,15 @@ export const updateRevision = async (req, res) => {
         const revision = await prisma.revision.findUnique({
             where: {
                 id: revisionID,
+            },
+            include: {
+                cuentaCobro: {
+                    include: {
+                        contratista: true
+                    }
+                },
+                comentarios: true,
+                revisor: true
             }
         });
 
@@ -119,6 +143,10 @@ export const updateRevision = async (req, res) => {
                 data: {
                     observaciones,
                     estado
+                },
+                include: {
+                    cuentaCobro: true,
+                    revisor: true
                 }
             }),
             prisma.cuentaCobro.update({
@@ -127,6 +155,13 @@ export const updateRevision = async (req, res) => {
                 },
                 data: {
                     estado: estadoCuenta,
+                },
+                include: {
+                    contratista: true,
+                    contrato: true,
+                    documentos: true,
+                    revisiones: true,
+                    pagos: true
                 }
             })
         ]);
@@ -135,6 +170,11 @@ export const updateRevision = async (req, res) => {
             logger.warn('[PRISMA] ACTUALIZACION DE REVISION FALLIDA!!!!');
             return res.status(400).json({msg: 'ACTUALIZACION DE REVISION FALLIDA'});
         }
+
+        await enviarNotificaciones(`SE HA ACTUALIZADO LA REVISION DE LA CUENTA DE COBRO # ${updateRevision[1].numeroCuenta}`,
+            `SE HA REVISADO LA CUENTA DE COBRO # ${updateRevision[1].numeroCuenta} Y SU ESTADO FINAL ES: ${updateRevision[1].estado}`,
+            updateRevision[1].contratista
+        );
 
         logger.info('[PRISMA] ACTUALIZACION DE REVISION Y CUANTA DE COBRO EXITOSA!!!!');
         return res.status(200).json({msg: 'ACTUALIZACION DE REVISION Y CUENTA DE COBRO EXITOSA', revision: updateRevision[0]});
@@ -162,13 +202,27 @@ export const deleteRevision = async (req, res) => {
         const deleteRevision = await prisma.revision.delete({
             where: {
                 id: revision.id,
+            },
+            include: {
+                cuentaCobro: {
+                    include: {
+                        contratista: true
+                    }
+                },
+                revisor: true
             }
+
         });
 
         if(!deleteRevision){
             logger.warn('[PRISMA] REVISION NO ELIMINADA CORRECTAMENTE!!!!');
             return res.status(400).json({msg: 'REVISION NO ELIMINADA CORRECTAMENTE'});
         }
+
+        await enviarNotificaciones(`SE HA ELIMINADO LA REVISION DE LA CUENTA DE COBRO # ${deleteRevision.cuentaCobro.numeroCuenta}`,
+            `SE HA ELIMINADO LA REVISION DE LA CUENTA DE COBRO # ${deleteRevision.cuentaCobro.numeroCuenta} POR PARTE DEL ADMIN O EL REVISOR ASIGNADO`,
+            deleteRevision.cuentaCobro.contratista
+        );
 
         logger.info('[PRISMA] ELIMINACION DE LA REVISION EXITOSA!!!!!');
         return res.status(200).json({msg: 'ELIMINACION DE LA REVISION EXITOSA', revision: deleteRevision});

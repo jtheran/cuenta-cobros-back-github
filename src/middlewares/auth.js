@@ -1,5 +1,6 @@
 import logger from "../logs/logger.js";
-import jwt from '../libs/jwt.js';
+import jwt from 'jsonwebtoken';
+import config from "../config/config.js";
 
 export const authorizeRoles = (roles) => {
     return (req, res, next) => {
@@ -34,7 +35,7 @@ export const authenticateToken = (req, res, next) => {
           logger.warn('[AUTH] ACCESS TOKEN INVALIDO!!!!');
           return res.status(403).json({ msg: 'ACCESS TOKEN INVÁLIDO' });
       }
-      logger.error('[AUTH] ERROR DE AUTENTICACION!!!!!');
+      logger.error('[AUTH] ERROR DE AUTENTICACION: '+ err.message);
       return res.status(500).json({ msg: 'ERROR DE AUTENTICACIÓN' });
   }
 };

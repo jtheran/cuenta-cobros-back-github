@@ -1,4 +1,6 @@
 import logger from '../logs/logger.js';
+import { sendEmail } from '../services/nodemailer.js';
+import { generarPasswordSegura } from '../utils/functions.js';
 import { encryptPass } from '../libs/bcrypt.js';
 import pkg from '@prisma/client';
 const { PrismaClient } = pkg;
@@ -47,11 +49,11 @@ export const getUserByID = async (req, res ) => {
 
 export const createUser = async (req, res) => {
     try{
+        const pass = generarPasswordSegura();
         const { 
             nombre, 
             apellido, 
             email, 
-            password, 
             role, 
             documentoIdentidad, 
             tipoDocumento, 
@@ -69,7 +71,7 @@ export const createUser = async (req, res) => {
             return res.status(400).json({msg: 'EMAIL YA SE ENCUENTRA REGISTRADO'});
         }
 
-        const hashPassword = await encryptPass(password);
+        const hashPassword = await encryptPass(pass);
 
         const user = await prisma.usuario.create({
             data: {
@@ -87,6 +89,15 @@ export const createUser = async (req, res) => {
         if(!user){
             logger.warn('[PRISMA] CREACION DE USUARIO FALLADA!!!!');
             return res.status(400).json({msg: 'CREACION DE USUARIO FALLADA'});
+        }else{
+            logger.info('[EMAIL] ENVIANDO CORREO DE BIENVENIDA!!!');
+            await sendEmail(user.email, 
+                `BIENVENIDO A LA PLATAFORMA DE CUENTAS DE COBROS ${user.nombre} ${user.apellido}`,
+                `SE HA CREADO UN USUARIO NUEVO, PARA SU ACCESO A LA PLATAFORMA SU CREDENCIALES SON LAS SIGUIENTES: 
+                * UUSARIO = ${user.email}
+                * PASSWORD = ${pass}`,
+                `${user.nombre} ${user.apellido}`
+            );
         }
 
         logger.info('[PRISMA] USUARIO CREADO EXITOSAMENTE!!!!!');

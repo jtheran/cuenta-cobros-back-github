@@ -13,11 +13,11 @@ const transporter = nodemailer.createTransport({
     port: 465,                    
     secure: true,
     auth: { user: config.adminEmail, 
-            pass: config.adminEmailPass 
+            pass: config.passAdminEmail
         }
 });
 
-export const sendEmail = async (to, subject = 'AREA DE PRUEBAS QA', text, name = 'USUARIO' ) => {
+export const sendEmail = async (to, subject, text, name = 'USUARIO' ) => {
     try{
         const templatePath = path.resolve('src/templates/emailTemplate.html');
         let html = fs.readFileSync(templatePath, 'utf8');
@@ -38,6 +38,7 @@ export const sendEmail = async (to, subject = 'AREA DE PRUEBAS QA', text, name =
         logger.info(`[EMAIL] ✅ CORREO ENVIADO A: ${to}`);
     }catch(err){
         logger.error(`[EMAIL] ❌ ERROR AL ENVIAR A: ${to} → ${err.message}`);
+        return new Error(`❌ ERROR AL ENVIAR A: ${to} → ${err.message}`);
     }
     
 };
@@ -53,8 +54,8 @@ export const sendMassiveEmail = async (subject, text) => {
         if(!users){
             logger.warn('[PRISMA] ❗ USERS NOT FOUND!!!!')
         }
-  
-      const emailPromises = users.map((user) =>
+
+        const emailPromises = users.map((user) =>
             sendEmail({
                 to: user.email,
                 subject,
@@ -76,6 +77,7 @@ export const sendMassiveEmail = async (subject, text) => {
         });
     } catch (err) {
         logger.error('[EMAIL] ❌ ERROR GENERAL EN ENVÍO MASIVO: ' + err.message);
+        return new Error(` ❌ ERROR GENERAL EN ENVÍO MASIVO: ${err.message}`);
     }
 };
-  
+

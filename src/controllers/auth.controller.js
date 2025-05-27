@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import createToken from '../libs/jwt.js';
 import config from '../config/config.js'; // Asumo que config.key y config.refreshKey están aquí
 import logger from '../logs/logger.js';
 import { matchPass } from '../libs/bcrypt.js';
