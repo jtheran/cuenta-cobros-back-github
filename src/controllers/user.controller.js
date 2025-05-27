@@ -9,7 +9,17 @@ const prisma = new PrismaClient();
 
 export const getUsers = async (req, res ) => {
     try{
-        const users = await prisma.usuario.findMany();
+
+        const { role } = req.query; // ✅ leer de query params
+        let filtros = {};
+
+        if (role) {
+            filtros = { role }; // 🔍 aplicar filtro por rol si se envía
+        }
+
+        const users = await prisma.usuario.findMany({
+            where: filtros
+        });
 
         if(!users){
             logger.warn('[PRISMA] USUARIOS NO ENCONTRADOS O NO EXISTEN!!!!');
