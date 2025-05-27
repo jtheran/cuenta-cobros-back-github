@@ -4,7 +4,7 @@ import { authenticateToken, authorizeRoles } from '../middlewares/auth.js';
 
 const router = Router();
 
-// Ruta de Login (no requiere autenticación previa)
+
 router.post('/login', login);
 
 // Ruta de Logout (requiere que el usuario esté autenticado para cerrar su propia sesión)
