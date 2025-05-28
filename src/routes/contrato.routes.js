@@ -11,11 +11,11 @@ router.get('/contract', authenticateToken, authorizeRoles(['admin', 'contrastist
 
 router.get('/contract/:id', authenticateToken, authorizeRoles(['admin', 'contrastista']), getContractByID);
 
-router.post('/contract', authenticateToken, authorizeRoles('admin'), createContract);
+router.post('/contract', authenticateToken, authorizeRoles(['admin']), createContract);
 
-router.delete('/contract/:id', authenticateToken, authorizeRoles('admin'), deleteContrac);
+router.delete('/contract/:id', authenticateToken, authorizeRoles(['admin']), deleteContrac);
 
-router.put('/contract/:id', authenticateToken, authorizeRoles('admin'), upload.array('files', 5), updateContract);
+router.put('/contract/:id', authenticateToken, authorizeRoles(['admin', 'contratista']), upload.array('files', 5), updateContract);
 
 
 export default router;

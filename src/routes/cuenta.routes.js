@@ -6,11 +6,11 @@ import { createCuenta, deleteCuenta, getCuentaByID, getCuentas, updateCuenta } f
 
 const router = Router();
 
-router.get('/cuenta', authenticateToken, authorizeRoles(['admin', 'contrastista', 'revisor', 'financiero']), getCuentas);
+router.get('/cuenta', authenticateToken, authorizeRoles(['admin', 'contratista', 'revisor', 'financiero']), getCuentas);
 
-router.get('/cuenta/:id', authenticateToken, authorizeRoles(['admin', 'contrastista', 'revisor', 'financiero']), getCuentaByID);
+router.get('/cuenta/:id', authenticateToken, authorizeRoles(['admin', 'contratista', 'revisor', 'financiero']), getCuentaByID);
 
-router.post('/cuenta', authenticateToken, authorizeRoles(['admin', 'contrastista']), createCuenta);
+router.post('/cuenta', authenticateToken, authorizeRoles(['admin', 'contratista']), createCuenta);
 
 router.put('/cuenta/:id', authenticateToken, authorizeRoles(['admin','revisor', 'financiero']), upload.array('files', 5), updateCuenta);
 

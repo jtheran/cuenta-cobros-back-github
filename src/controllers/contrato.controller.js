@@ -115,68 +115,112 @@ export const createContract = async (req, res) => {
     }
 }
 
-export const updateContract = async (req, res) => { 
-    try{
-        const contratoID = req.params.id;
-
-        if (!req.files || req.files.length === 0) {
-            logger.warn('[PRISMA] NO SE HAN CARGADO LOS ARCHIVOS NECESARIOS!!!!!')
-            return res.status(400).json({ msg: 'NO SE HAN CARGADO LOS ARCHIVOS NECESARIOS'});
-        }
+export const updateContract = async (req, res) => {
+    try {
+        const { id } = req.params; // ID del contrato a actualizar
+        const { contratistaId: nuevoContratistaId } = req.query;
+        const archivos = req.files || []; // Asumiendo que usas multer o similar
 
         const contrato = await prisma.contrato.findUnique({
-            where: {
-                id: contratoID,
+            where: { 
+                id 
+            },
+            include: { 
+                contratista: true,
+                documentos: true
             }
         });
-        
-        if(!contrato){
-            logger.warn('[PRISMA] CONTRATO NO ENCONTRADO!!!');
-            return res.status(404).json({msg: 'CONTRATO NO ENCONTRADO'});
+
+
+        if (!contrato) {
+            logger.warn('[PRISMA] CONTRATO NO ENCONTRADO!!!!');
+            return res.status(404).json({ msg: 'CONTRATO NO ENCONTRADO' });
         }
 
-        const documentosData = req.files.map(file => ({
-            nombre: file.originalname,
-            tipo: file.mimetype,
-            url: `/docs/${file.filename}`,
-            contratoId: contratoID,
-            descripcion: req.body.descripcion || 'SIN DESCRIPCION',
-        }));
-
-        const updateContrato = await prisma.$transaction([
-            prisma.documento.createMany({ data: documentosData }),
-            prisma.contrato.update({
+        // Si se proporciona contratistaId y es diferente del actual
+        if (nuevoContratistaId && nuevoContratistaId !== contrato.contratistaId) {
+            const contratoActualizado = await prisma.contrato.update({
                 where: { 
-                    id: contrato.id,
+                    id 
                 },
-                data: { 
-                    estado: 'ACTIVO',
+                data: {
+                    contratistaId: nuevoContratistaId,
+                    fechaActualizacion: new Date(),
+                    estado: 'ASIGNADO',
                 },
                 include: {
                     contratista: true,
-                    cuentasCobro: true,
-                    documentos: true
                 }
-            })
-        ]);
+            });
 
-        if(!updateContrato){
-            logger.warn('[PRISMA] ACTUALIZACION DE CUENTA DE COBRO FALLIDA!!!!!');
-            return res.status(400).json({msg: 'ACTUALIZACION DE CUENTA DE COBRO FALLIDA'});
+            await enviarNotificaciones(`ASINGNACION AL CONTRATO # ${contratoActualizado.numero}`,
+                `SE HA ASIGNADO COMO NUEVO CONTRATISTA DEL CONTRATO # ${contratoActualizado.numero}, 
+                POR FAVOR ACTUALIZAR LA DOCUMENTACION DEL CONTRATO`,
+                contratoActualizado.contratista
+            );
+
+            await enviarNotificaciones(`CAMBIO DE ASIGNACION EN CONTRATO # ${contrato.numero}`,
+                `SE HA QUITADO SU ASIGNACION DEL CONTRATO # ${contrato.numero}`,
+                contrato.contratista
+            );
+
+            logger.info('[PRISMA] CONTRATISTA ASIGNADO AL CONTRATO ACTUALIZADO!!!!');
+            return res.status(200).json({ msg: 'CONTRATISTA ASIGNADO AL ACTUALIZADO', contrato: contratoActualizado });
+            
         }
 
-        await enviarNotificaciones(`CONTRATO # ${updateContrato[1].numero} ACTUALIZADO DE ESTADO`,
-            `CONTRATO A PASADO DE ESTADO ${contrato.estado} a ${updateContrato[1].estado}`,
-            updateContrato[1].contratista
-        );
-        
-        logger.info('[PRISMA] ACTUALIZACION DE CUENTA DE COBRO EXITOSA!!!!');
-        return res.status(202).json({msg: 'ACTUALIZACION DE CUENTA DE COBRO EXITOSA', contrato: updateContrato[1]});
-    }catch(err){
-        logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
-        return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});
+        // Si se reciben archivos, subirlos y cambiar estado a ACTIVO
+        if (archivos.length > 0) {
+            // Subir documentos a la tabla Documento
+            const documentosCreados = await Promise.all(archivos.map(async (archivo) => {
+                return await prisma.documento.create({
+                    data: {
+                        nombre: archivo.originalname,
+                        url: archivo.path, // o archivo.location si usas S3
+                        contratoId: contrato.id
+                    }
+                });
+            }));
+
+            if(!documentosCreados){
+                logger.warn('[PRISMA] NO SE PUDIERON CARGAR LOS DOCUMENTOS!!!!');
+                return res.status(400).json({msg: 'NO SE PUDIERON CARGAR LOS DOCUMENTOS'});
+            }
+
+            const contratoActualizado = await prisma.contrato.update({
+                where: { id },
+                data: {
+                    estado: 'ACTIVO',
+                    fechaActualizacion: new Date()
+                },
+                include: {
+                    documentos: true,
+                    contratista: true,
+                }
+            });
+
+            await enviarNotificaciones(`ACTUALIZACION DE ESTADO DEL CONTRATO # ${contratoActualizado.numero}`,
+                `SE HA ACTUALIZADO EL CONTRATO # ${contratoActualizado.numero} A PASADO DEL ESTADO ${contrato.estado} a ${contratoActualizado.estado}`,
+                contratoActualizado.contratista
+            );
+
+            logger.info('[PRISMA] DOCUMENTOS CARGADOS Y ESTADO CAMBIADO A ACTIVO!!!!');
+            return res.status(200).json({
+                msg: 'DOCUMENTOS CARGADOS Y ESTADO CAMBIADO A ACTIVO',
+                contrato: contratoActualizado,
+            });
+        }
+
+        // Si no se envía contratistaId ni archivos, no se hace nada
+        logger.info('[PRISMA] NO HUBO CAMBIOS EN EL CONTRATO')
+        return res.status(200).json({ msg: 'NO HUBO CAMBIOS EN EL CONTRATO', contrato });
+
+    } catch (err) {
+        logger.error('[SERVER] INTERNAL SERVER ERROR: ' + err.message);
+        return res.status(500).json({ msg: 'INTERNAL SERVER ERROR' });
     }
-}
+};
+
 
 export const deleteContrac = async (req, res) => {
     try{

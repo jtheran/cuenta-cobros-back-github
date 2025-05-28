@@ -57,7 +57,7 @@ export const createPago = async (req, res) => {
             cuentaCobroId,
         } = req.body;
 
-        const pago = await await prisma.$transaction([
+        const pago = await prisma.$transaction([
             prisma.pago.create({
                 data: {
                     valor,
@@ -85,15 +85,15 @@ export const createPago = async (req, res) => {
             logger.warn('[PRISMA] CREACION DEL PAGO FALLIDO!!!!');
             return res.status(400).json({msg: 'CREACION DEL PAGO FALLIDO'});
         }else{
-            logger.info('[NOTIFICACION] SE HA ENVIADO NOTIFICACION!!!!');
             await enviarNotificaciones(`SE HA CREADO EL PAGO DE LA CUENTA DE COBRO # ${pago[1].numeroCuenta}`,
                 `SE HA INICIADO EL PROCESO PARA REALIZAR EL PAGO DE LA CUENTA DE COBRO # ${pago[1].numeroCuenta} DEL CONTRATO # ${pago[1].contrato.numero}`,
                 pago[1].contratista
             );
+            logger.info('[NOTIFICACION] SE HA ENVIADO NOTIFICACION!!!!');
         }
 
         logger.info('[PRISMA] CREACION DE PAGO EXITOSO!!!!');
-        return res.status(201).json({msg: 'CREACION DE PAGO EXITOSO', pago })
+        return res.status(201).json({msg: 'CREACION DE PAGO EXITOSO', pago: pago[0] })
     }catch(err){
         logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
         return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});
@@ -142,9 +142,65 @@ export const updatePago = async (req, res) => {
                 },
                 data: {
                     estado: status,
+                },
+                include: {
+                    contratista: true,
                 }
             }),
         ]);
+
+        if(!pago){
+            logger.warn('[PRISMA] ACTUALIZACION DEL PAGO FALLIDA!!!!');
+            return res.status(400).json({msg: 'CREACION DEL PAGO FALLIDA'});
+        }else{
+            await enviarNotificaciones(`SE HA ACTUALIZADO EL PAGO DE LA CUENTA DE COBRO # ${pago[1].numeroCuenta}`,
+                `SE HA ACTUALIZADO EL ESTADO DEL PAGO DE LA CUENTA DE COBRO # ${pago[1].numeroCuenta} A ESTADO ${pago[0].estado}
+                Y LA CUENTA DE COBRO A PASADO A ESTADO ${pago[1].estado}`,
+                pago[1].contratista
+            );
+            logger.info('[NOTIFICACION] SE HA ENVIADO NOTIFICACION!!!!');
+        }
+
+        logger.info('[PRISMA] ACTUALIZACION DE PAGO EXITOSA!!!!');
+        return res.status(200).json({msg: 'ACTUALIZACION DE PAGO EXITOSA', pago: pago[0] })
+    }catch(err){
+        logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
+        return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});
+    }
+}
+
+export const deletePago = async (req, res) => {
+    try{
+        const { id } = req.params;
+
+        const pago = await prisma.pago.findUnique({
+            where: {
+                id,
+            }
+        });
+
+        if(!pago){
+            logger.warn('[PRISMA] NO SE HA ENCONTRADO EL PAGO!!!!');
+            return res.status(404).json({msg: 'NO SE HA ENCONTRADO EL PAGO'});
+        }
+
+        const deletePago = await prisma.pago.delete({
+            where: {
+                id: pago.id,
+            },
+            include: {
+                cuentaCobro: true,
+                financiero: true,
+            }
+        });
+
+        if(!deletePago){
+            logger.warn('[PRISMA] PROCESO DE ELIMINACION DE PAGO FALLIDO!!!!');
+            return res.status(400).json({msg: 'PROCESO DE ELIMINACION DE PAGO FALLIDO'});
+        }
+
+        logger.info('[PRISMA] PROCESO DE ELIMINACION DE PAGO EXITOSO!!!!!');
+        return res.status(200).json({msg: 'PROCESO DE ELIMINACION DE PAGO EXITOSO', pago: deletePago })
     }catch(err){
         logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
         return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});

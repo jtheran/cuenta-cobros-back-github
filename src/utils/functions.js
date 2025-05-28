@@ -90,7 +90,7 @@ export const calcularPorcentajeEjecucion = (periodoInicio, periodoFin) => {
 };
 
 export const enviarNotificaciones = async (titulo, contenido, user) => {
-  try {
+  try{
     const io = await getIO();
     const notificacion = await prisma.notificacion.create({
       data: {
@@ -100,19 +100,19 @@ export const enviarNotificaciones = async (titulo, contenido, user) => {
       },
     });
 
-    if (!notificacion) {
+    if(!notificacion){
       logger.warn("[PRISMA] CREACION DE NOTIFICACION FALLIDA!!!!");
-      return res.status(404).json({ msg: "CREACION DE NOTIFICACION FALLIDA" });
-    } else {
-      logger.warn("[PRISMA] CREACION DE NOTIFICACION EXITOSA!!!!");
+      return new Error("CREACION DE NOTIFICACION FALLIDA");
+    }else{
       io.emit("notificacion", {
         titulo,
         contenido,
         fecha: new Date(),
       });
       await sendEmail(user.email, titulo, contenido, user.name);
+      logger.warn("[PRISMA] CREACION DE NOTIFICACION EXITOSA!!!!");
     }
-  } catch (err) {
+  }catch(err){
     logger.error("[SERVER] ERROR AL GENERAR NOTIFICACIONES!!!!");
     return new Error("ERROR AL GENERAR NOTIFICACIONES");
   }
