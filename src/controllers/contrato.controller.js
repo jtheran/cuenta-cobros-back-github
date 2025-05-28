@@ -77,6 +77,7 @@ export const createContract = async (req, res) => {
             fechaFin,
             tipoContrato,
             contratistaId,
+            documentosRequeridos,
         } = req.body;
 
         const contrato = await prisma.contrato.create({
@@ -89,6 +90,7 @@ export const createContract = async (req, res) => {
                 estado: 'ASIGNADO',
                 tipoContrato,
                 contratistaId,
+                documentosRequeridos,
             },
             include: {
                 contratista: true,

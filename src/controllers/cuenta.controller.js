@@ -99,6 +99,7 @@ export const createCuenta = async (req, res) => {
             contratoId,
             descripcion,
             datosBancarios,
+            documentosRequeridos,
         } = req.body;
 
         const cuenta = await prisma.cuentaCobro.create({
@@ -111,6 +112,7 @@ export const createCuenta = async (req, res) => {
                 descripcionActividades: descripcion,
                 numeroCuenta: await generarNumeroCuenta(),
                 datosBancarios,
+                documentosRequeridos,
             },
             include: {
                 contratista: true,

@@ -45,6 +45,7 @@ model Contrato {
   numero          String       @unique
   objeto          String
   valor           Float
+  documentosRequeridos  Json?
   fechaInicio     DateTime
   fechaFin        DateTime
   estado          String      @default("ASIGNADO")
@@ -66,6 +67,7 @@ model CuentaCobro {
   id                String       @id @default(uuid())
   numeroCuenta      String      @unique
   valor             Float
+  documentosRequeridos  Json?
   periodoInicio     DateTime
   periodoFin        DateTime
   estado            String      @default("CREADA")
