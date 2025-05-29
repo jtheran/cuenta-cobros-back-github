@@ -16,6 +16,7 @@ import contractRoutes from './routes/contrato.routes.js';
 import cuentaRoputes from './routes/cuenta.routes.js'
 import revisionRoutes from './routes/revision.routes.js';
 import pagoRoutes from './routes/pago.routes.js';
+import statsRoutes from './routes/stats.routes.js';
 
 //* INICIALIZATION
 const app = express();
@@ -47,6 +48,7 @@ app.use('/api', contractRoutes);
 app.use('/api', cuentaRoputes);
 app.use('/api', revisionRoutes);
 app.use('/api', pagoRoutes);
+app.use('/api', statsRoutes);
 
 
 export default server;

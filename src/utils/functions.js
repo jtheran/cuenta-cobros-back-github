@@ -148,3 +148,16 @@ export const generarPasswordSegura = () => {
   const pass = password.sort(() => Math.random() - 0.5).join("");
   return pass;
 }
+
+// Función para filtrar y dejar solo los campos con valor `true`
+export const filtrarDocumentosRequeridos = (documentos) => {
+  const filtrados = {};
+  for (const clave in documentos) {
+    if (documentos[clave] === true) {
+      filtrados[clave] = true;
+    }
+  }
+  logger.info('[SERVER] FILTRANDO DOCUMENTOS REQUERIDOS!!!!');
+  return filtrados;
+};
+

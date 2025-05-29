@@ -18,7 +18,13 @@ export const getUsers = async (req, res ) => {
         }
 
         const users = await prisma.usuario.findMany({
-            where: filtros
+            where: filtros,
+            include: {
+                contratos: true,
+                cuentasCobro: true,
+                revisiones: true,
+                pagos: true,
+            }
         });
 
         if(!users){
@@ -41,6 +47,12 @@ export const getUserByID = async (req, res ) => {
         const user = await prisma.usuario.findUnique({
             where: {
                 id
+            },
+            include: {
+                contratos: true,
+                cuentasCobro: true,
+                revisiones: true,
+                pagos: true,
             }
         });
 
@@ -93,6 +105,12 @@ export const createUser = async (req, res) => {
                 telefono,
                 role,
                 password: hashPassword,
+            },
+            include: {
+                contratos: true,
+                cuentasCobro: true,
+                revisiones: true,
+                pagos: true,
             }
         });
 
@@ -102,10 +120,10 @@ export const createUser = async (req, res) => {
         }else{
             logger.info('[EMAIL] ENVIANDO CORREO DE BIENVENIDA!!!');
             await sendEmail(user.email, 
-                `BIENVENIDO A LA PLATAFORMA DE CUENTAS DE COBROS ${user.nombre} ${user.apellido}`,
-                `SE HA CREADO UN USUARIO NUEVO, PARA SU ACCESO A LA PLATAFORMA SU CREDENCIALES SON LAS SIGUIENTES: 
-                * UUSARIO = ${user.email}
-                * PASSWORD = ${pass}`,
+                `BIENVENIDO A LA PLATAFORMA DE CUENTAS DE COBROS LSVCONTRACTPAY!!!!`,
+                `SE HA CREADO UN USUARIO NUEVO, PARA SU ACCESO A LA PLATAFORMA SU CREDENCIALES SON LAS SIGUIENTES: <br>
+                - UUSARIO = ${user.email} <br>
+                - PASSWORD = ${pass} <br>`,
                 `${user.nombre} ${user.apellido}`
             );
         }

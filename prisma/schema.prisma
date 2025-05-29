@@ -41,27 +41,30 @@ model Usuario {
 
 
 model Contrato {
-  id              String       @id @default(uuid())
-  numero          String       @unique
-  objeto          String
-  valor           Float
+  id                    String       @id @default(uuid())
+  numero                String       @unique
+  objeto                String
+  valor                 Float
+  valorMensual          Float      @default(0.0)
+  obligaciones          Json?     // 👈 Nuevo campo
   documentosRequeridos  Json?
-  fechaInicio     DateTime
-  fechaFin        DateTime
-  estado          String      @default("ASIGNADO")
-  tipoContrato    String
-  metadatos       Json?       // Agregado campo metadatos que faltaba
-  fechaCreacion   DateTime    @default(now())
-  fechaActualizacion DateTime @updatedAt
-  
+  fechaInicio           DateTime
+  fechaFin              DateTime
+  estado                String      @default("ASIGNADO")
+  tipoContrato          String
+  metadatos             Json?
+  fechaCreacion         DateTime    @default(now())
+  fechaActualizacion    DateTime    @updatedAt
+
   // Relaciones
-  contratista     Usuario     @relation("Contratista", fields: [contratistaId], references: [id])
-  contratistaId   String
-  cuentasCobro    CuentaCobro[]
-  documentos      Documento[]
+  contratista           Usuario     @relation("Contratista", fields: [contratistaId], references: [id])
+  contratistaId         String
+  cuentasCobro          CuentaCobro[]
+  documentos            Documento[]
 
   @@index([contratistaId])
 }
+
 
 model CuentaCobro {
   id                String       @id @default(uuid())

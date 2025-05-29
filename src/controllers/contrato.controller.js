@@ -1,5 +1,5 @@
 import logger from '../logs/logger.js';
-import { generarNumeroContrato, enviarNotificaciones } from '../utils/functions.js';
+import { generarNumeroContrato, enviarNotificaciones, filtrarDocumentosRequeridos } from '../utils/functions.js';
 import pkg from '@prisma/client';
 const { PrismaClient } = pkg;
 
@@ -27,8 +27,13 @@ export  const getContrats = async (req, res) => {
             return res.status(404).json({msg: 'CONTRATOS NO ENCONTRADOS O NO EXISTEN'});
         }
 
-        logger.info('[PRISMA] LISTA DE CONTRATOS!!!');
-        return res.status(200).json({msg: 'LISTA DE CONTRATOS', contrato: contratos});
+        const contratosConObligaciones = contratos.map(c => ({
+            ...c,
+            obligaciones: c.obligaciones ? JSON.parse(c.obligaciones) : []
+        }));
+
+    logger.info('[PRISMA] LISTA DE CONTRATOS!!!');
+    return res.status(200).json({ msg: 'LISTA DE CONTRATOS', contrato: contratosConObligaciones });
     }catch(err){
         logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
         return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});
@@ -59,9 +64,13 @@ export const getContractByID = async (req, res) => {
             logger.warn('[PRISMA] CONTRATO NO ENCONTRADO O NO EXISTEN!!!!');
             return res.status(404).json({msg: 'CONTRATO NO ENCONTRADO O NO EXISTEN'});
         }
+        const contratoFormateado = {
+            ...contrato,
+            obligaciones: contrato.obligaciones ? JSON.parse(contrato.obligaciones) : []
+        };
 
         logger.info('[PRISMA] CONTRATO ENCONTRADO!!!');
-        return res.status(200).json({msg: 'CONTRATO ENCONTRADO', contrato})
+        return res.status(200).json({ msg: 'CONTRATO ENCONTRADO', contrato: contratoFormateado });
     }catch(err){
         logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
         return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});
@@ -76,9 +85,14 @@ export const createContract = async (req, res) => {
             fechaInicio,
             fechaFin,
             tipoContrato,
+            obligaciones,
             contratistaId,
             documentosRequeridos,
         } = req.body;
+
+        const documentosFiltrados = documentosRequeridos
+        ? filtrarDocumentosRequeridos(documentosRequeridos)
+        : null;
 
         const contrato = await prisma.contrato.create({
             data: {
@@ -90,7 +104,8 @@ export const createContract = async (req, res) => {
                 estado: 'ASIGNADO',
                 tipoContrato,
                 contratistaId,
-                documentosRequeridos,
+                documentosRequeridos: documentosFiltrados,
+                obligaciones: JSON.stringify(obligaciones), 
             },
             include: {
                 contratista: true,
@@ -155,6 +170,11 @@ export const updateContract = async (req, res) => {
                 }
             });
 
+            const contratoFormateado = {
+                ...contratoActualizado,
+                obligaciones: contratoActualizado.obligaciones ? JSON.parse(contratoActualizado.obligaciones) : []
+            };
+
             await enviarNotificaciones(`ASINGNACION AL CONTRATO # ${contratoActualizado.numero}`,
                 `SE HA ASIGNADO COMO NUEVO CONTRATISTA DEL CONTRATO # ${contratoActualizado.numero}, 
                 POR FAVOR ACTUALIZAR LA DOCUMENTACION DEL CONTRATO`,
@@ -167,7 +187,7 @@ export const updateContract = async (req, res) => {
             );
 
             logger.info('[PRISMA] CONTRATISTA ASIGNADO AL CONTRATO ACTUALIZADO!!!!');
-            return res.status(200).json({ msg: 'CONTRATISTA ASIGNADO AL ACTUALIZADO', contrato: contratoActualizado });
+            return res.status(200).json({ msg: 'CONTRATISTA ASIGNADO AL ACTUALIZADO', contrato: contratoFormateado });
             
         }
 
@@ -178,7 +198,9 @@ export const updateContract = async (req, res) => {
                 return await prisma.documento.create({
                     data: {
                         nombre: archivo.originalname,
-                        url: archivo.path, // o archivo.location si usas S3
+                        url: archivo.url, // o archivo.location si usas S3
+                        tipo: archivo.mimetype,
+                        descripcion: req.body.descripcion || 'SIN DESCRIPCION',
                         contratoId: contrato.id
                     }
                 });
@@ -206,14 +228,16 @@ export const updateContract = async (req, res) => {
                 contratoActualizado.contratista
             );
 
-            logger.info('[PRISMA] DOCUMENTOS CARGADOS Y ESTADO CAMBIADO A ACTIVO!!!!');
-            return res.status(200).json({
-                msg: 'DOCUMENTOS CARGADOS Y ESTADO CAMBIADO A ACTIVO',
-                contrato: contratoActualizado,
-            });
-        }
+            const contratoFormateado = {
+                ...contratoActualizado,
+                obligaciones: contratoActualizado.obligaciones ? JSON.parse(contratoActualizado.obligaciones) : []
+            };
 
         // Si no se envía contratistaId ni archivos, no se hace nada
+            logger.info('[PRISMA] NO HUBO CAMBIOS EN EL CONTRATO')
+            return res.status(200).json({ msg: 'NO HUBO CAMBIOS EN EL CONTRATO', contrato: contratoFormateado });
+        }
+
         logger.info('[PRISMA] NO HUBO CAMBIOS EN EL CONTRATO')
         return res.status(200).json({ msg: 'NO HUBO CAMBIOS EN EL CONTRATO', contrato });
 
@@ -224,7 +248,7 @@ export const updateContract = async (req, res) => {
 };
 
 
-export const deleteContrac = async (req, res) => {
+export const deleteContract = async (req, res) => {
     try{
         const contratoID = req.params.id;
 
