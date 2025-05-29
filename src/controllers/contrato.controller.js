@@ -82,6 +82,7 @@ export const createContract = async (req, res) => {
         const {
             objeto,
             valor,
+            valorMensual,
             fechaInicio,
             fechaFin,
             tipoContrato,
@@ -99,6 +100,7 @@ export const createContract = async (req, res) => {
                 numero: await generarNumeroContrato(),
                 objeto,
                 valor,
+                valorMensual,
                 fechaInicio: new Date(fechaInicio),
                 fechaFin: new Date(fechaFin),
                 estado: 'ASIGNADO',
