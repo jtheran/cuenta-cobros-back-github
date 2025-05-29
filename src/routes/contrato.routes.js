@@ -1,11 +1,6 @@
 import { Router } from 'express';
-<<<<<<< HEAD
-import { authenticateToken, authorizeRoles } from '../middlewares/auth.js'; 
-import { getContrats, getContractByID, createContract, deleteContract, updateContract } from '../controllers/contrato.controller.js';
-=======
 import { authenticateToken, authorizeRoles } from '../middlewares/auth.js';
-import { getContrats, getContractByID, createContract, deleteContrac, updateContract } from '../controllers/contrato.controller.js';
->>>>>>> c1f06d0528fcbdf2fbaa871a8aa26c7f11729513
+import { getContrats, getContractByID, createContract, deleteContract, updateContract } from '../controllers/contrato.controller.js';
 import upload from '../libs/multer.js';
 
 
