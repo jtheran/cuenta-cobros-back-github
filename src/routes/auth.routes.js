@@ -11,10 +11,10 @@ router.post('/login', login);
 router.post('/logout', logout); // Usamos tu propio middleware para consistencia
 
 // Ruta de Refresco de Token (no requiere autenticación de Access Token, solo de Refresh Token interno)
-router.post('/refresh-token', authorizeRoles(['admin', 'contrastista', 'financiero', 'revisor']), refreshToken);
+router.post('/refresh-token', refreshToken);
 
 // Ruta para obtener datos del usuario (requiere autenticación de Access Token)
-router.get('/me', authenticateToken, authorizeRoles(['admin', 'contrastista', 'financiero', 'revisor']), getMe);
+router.get('/me', authenticateToken, authorizeRoles(['admin', 'contratista', 'financiero', 'revisor']), getMe);
 
 
 export default router;
