@@ -5,12 +5,12 @@ import { statsAdmin, statsContratista, statsFinanciero, statsRevisor } from '../
 
 const router = Router();
 
-router.get('/stats-admin', authenticateToken, authorizeRoles(['admin', 'contratista', 'revisor', 'financiero']), statsAdmin);
+router.get('/stats-admin', authenticateToken, authorizeRoles(['admin']), statsAdmin);
 
-router.get('/stats-contratista', authenticateToken, authorizeRoles(['admin', 'contratista', 'revisor', 'financiero']), statsContratista);
+router.get('/stats-contratista', authenticateToken, authorizeRoles(['admin', 'contratista']), statsContratista);
 
-router.get('stats-revisor', authenticateToken, authorizeRoles(['admin', 'contratista', 'revisor', 'financiero']), statsRevisor);
+router.get('stats-revisor', authenticateToken, authorizeRoles(['admin', 'revisor']), statsRevisor);
 
-router.get('stats-financiero', authenticateToken, authorizeRoles(['admin', 'contratista', 'revisor', 'financiero']), statsFinanciero);
+router.get('stats-financiero', authenticateToken, authorizeRoles(['admin', 'financiero']), statsFinanciero);
 
 export default router;
