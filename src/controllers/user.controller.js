@@ -24,6 +24,7 @@ export const getUsers = async (req, res ) => {
                 cuentasCobro: true,
                 revisiones: true,
                 pagos: true,
+                documentos: true,
             }
         });
 

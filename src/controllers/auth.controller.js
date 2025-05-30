@@ -188,6 +188,9 @@ export const getMe = async (req, res) => {
         const user = await prisma.usuario.findUnique({
             where: {
                 id: req.user.id,
+            },
+            include: {
+                documentos: true
             }
         });
 
