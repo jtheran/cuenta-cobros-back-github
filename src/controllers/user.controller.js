@@ -146,7 +146,8 @@ export const updateUser = async (req, res) => {
             email,
             documentoIdentidad,
             tipoDocumento,
-            telefono = null
+            telefono = null,
+            descripcion = 'SIN DESCRIPCION'
         } = req.body;
 
         const user = await prisma.usuario.findUnique({ where: { id } });
@@ -156,57 +157,58 @@ export const updateUser = async (req, res) => {
             return res.status(404).json({ msg: 'USUARIO NO ENCONTRADO O NO EXISTE' });
         }
 
-        const verifyEmail = await prisma.usuario.findUnique({ where: { email } });
+        // Verificar si hay archivos cargados
+        const hayArchivos = req.files && req.files.length > 0;
 
-        if (verifyEmail && verifyEmail.id !== id) {
-            logger.warn('[PRISMA] EMAIL YA SE ENCUENTRA REGISTRADO!!!!');
-            return res.status(400).json({ msg: 'EMAIL YA SE ENCUENTRA REGISTRADO' });
-        }
-
-        // 1. Actualizamos datos del usuario
-        const updateUser = await prisma.usuario.update({
-            where: { 
-                id: user.id
-            },
-            data: {
-                nombre,
-                apellido,
-                email,
-                tipoDocumento,
-                documentoIdentidad,
-                telefono,
-            }
-        });
-
-        // 2. Procesamos archivos si existen
-        if(req.files && req.files.length > 0){
+        if (hayArchivos) {
+            // Si hay archivos, solo guardamos los documentos
             const documentos = await Promise.all(req.files.map(async (file) => {
                 return await prisma.documento.create({
                     data: {
                         nombre: file.originalname,
                         url: `/docs/${file.filename}`,
                         tipo: file.mimetype,
-                        descripcion: req.body.descripcion || 'SIN DESCRIPCION',
+                        descripcion,
                         usuario: {
-                            connect: { 
-                                id: user.id
-                            }
+                            connect: { id: user.id }
                         }
                     }
                 });
             }));
 
             logger.info(`[PRISMA] ${documentos.length} DOCUMENTOS CARGADOS PARA EL USUARIO`);
-        }
+            return res.status(200).json({ msg: 'DOCUMENTOS CARGADOS CORRECTAMENTE', documentos });
+        } else {
+            // Si no hay archivos, actualizamos los datos del usuario
+            const verifyEmail = await prisma.usuario.findUnique({ where: { email } });
 
-        logger.info('[PRISMA] DATOS DEL USUARIO ACTUALIZADO EXITOSAMENTE!!!!!');
-        return res.status(200).json({ msg: 'DATOS DEL USUARIO ACTUALIZADO EXITOSAMENTE', user: updateUser });
+            if (verifyEmail && verifyEmail.id !== id) {
+                logger.warn('[PRISMA] EMAIL YA SE ENCUENTRA REGISTRADO!!!!');
+                return res.status(400).json({ msg: 'EMAIL YA SE ENCUENTRA REGISTRADO' });
+            }
+
+            const updateUser = await prisma.usuario.update({
+                where: { id },
+                data: {
+                    nombre,
+                    apellido,
+                    email,
+                    tipoDocumento,
+                    documentoIdentidad,
+                    telefono,
+                }
+            });
+
+            logger.info('[PRISMA] DATOS DEL USUARIO ACTUALIZADOS EXITOSAMENTE!!!!!');
+            return res.status(200).json({ msg: 'DATOS DEL USUARIO ACTUALIZADOS EXITOSAMENTE', user: updateUser });
+        }
 
     } catch (err) {
         logger.error('[SERVER] INTERNAL SERVER ERROR: ' + err.message);
         return res.status(500).json({ msg: 'INTERNAL SERVER ERROR' });
     }
 };
+
 
 export const deleteUser = async (req, res ) => {
     try{
