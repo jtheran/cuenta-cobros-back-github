@@ -102,6 +102,12 @@ export const createCuenta = async (req, res) => {
             documentosRequeridos,
         } = req.body;
 
+        const contrato = await prisma.contrato.findUnique({
+            where: {
+                id: contratoId,
+            }
+        });
+
         const cuenta = await prisma.cuentaCobro.create({
             data: {
                 valor,
@@ -112,7 +118,7 @@ export const createCuenta = async (req, res) => {
                 descripcionActividades: descripcion,
                 numeroCuenta: await generarNumeroCuenta(),
                 datosBancarios,
-                documentosRequeridos,
+                documentosRequeridos: contrato.documentosRequeridos,
             },
             include: {
                 contratista: true,

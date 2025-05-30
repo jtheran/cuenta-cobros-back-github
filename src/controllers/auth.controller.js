@@ -22,15 +22,23 @@ const cookieOptions = {
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
+        let validateDocumentacion = false;
         const user = await prisma.usuario.findUnique({
             where: {
                 email
+            },
+            include: {
+                documentos: true,
             }
         });
 
         if (!user) {
             logger.warn('[PRISMA] USUARIO NO ESTA REGISTRADO!!!');
             return res.status(404).json({ msg: 'USUARIO NO ESTA REGISTRADO' });
+        }
+
+        if (Array.isArray(user.documentos) && user.documentos.length > 0) {
+            validateDocumentacion = true;
         }
 
         const isValidated = await matchPass(password, user.password);
@@ -81,8 +89,10 @@ export const login = async (req, res) => {
                 id: user.id,
                 email: user.email,
                 role: user.role,
-                name: user.name,
-            }
+                name: user.nombre,
+                validateDocumentacion
+            },
+            
         });
     } catch (err) {
         logger.error('ERROR INTERNO DEL SERVIDOR: ' + err.message);

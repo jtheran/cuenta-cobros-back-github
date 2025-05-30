@@ -36,7 +36,8 @@ model Usuario {
   cuentasCobro     CuentaCobro[]    @relation("Contratista")
   comentarios      Comentario[]      @relation("AutorComentario")
   pagos            Pago[]
-  notificaciones   Notificacion[]           
+  notificaciones   Notificacion[]  
+  documentos       Documento[]         
 }
 
 
@@ -162,6 +163,9 @@ model Documento {
 
   cuentaCobro     CuentaCobro?  @relation(fields: [cuentaCobroId], references: [id])
   cuentaCobroId   String?
+
+  usuario         Usuario?      @relation(fields: [usuarioId], references: [id])
+  usuarioId       String?
 
   @@index([contratoId])
   @@index([cuentaCobroId])

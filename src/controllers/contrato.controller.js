@@ -194,16 +194,20 @@ export const updateContract = async (req, res) => {
         }
 
         // Si se reciben archivos, subirlos y cambiar estado a ACTIVO
-        if (archivos.length > 0) {
+        if(req.files && req.files.length > 0){
             // Subir documentos a la tabla Documento
-            const documentosCreados = await Promise.all(archivos.map(async (archivo) => {
+            const documentos = await Promise.all(req.files.map(async (file) => {
                 return await prisma.documento.create({
                     data: {
-                        nombre: archivo.originalname,
-                        url: archivo.url, // o archivo.location si usas S3
-                        tipo: archivo.mimetype,
+                        nombre: file.originalname,
+                        url: `/docs/${file.filename}`,
+                        tipo: file.mimetype,
                         descripcion: req.body.descripcion || 'SIN DESCRIPCION',
-                        contratoId: contrato.id
+                        usuario: {
+                            connect: { 
+                                id: user.id
+                            }
+                        }
                     }
                 });
             }));
