@@ -151,6 +151,7 @@ export const updateUser = async (req, res) => {
             descripcion = 'SIN DESCRIPCION'
         } = req.body;
 
+        // Buscar usuario
         const user = await prisma.usuario.findUnique({ where: { id } });
 
         if (!user) {
@@ -158,11 +159,16 @@ export const updateUser = async (req, res) => {
             return res.status(404).json({ msg: 'USUARIO NO ENCONTRADO O NO EXISTE' });
         }
 
-        // Verificar si hay archivos cargados
         const hayArchivos = req.files && req.files.length > 0;
 
         if (hayArchivos) {
-            // Si hay archivos, solo guardamos los documentos
+            // 1. Eliminar documentos existentes del usuario
+            await prisma.documento.deleteMany({
+                where: { usuarioId: id }
+            });
+            logger.info(`[PRISMA] DOCUMENTOS ANTERIORES DEL USUARIO ELIMINADOS`);
+
+            // 2. Crear nuevos documentos
             const documentos = await Promise.all(req.files.map(async (file) => {
                 return await prisma.documento.create({
                     data: {
@@ -177,17 +183,20 @@ export const updateUser = async (req, res) => {
                 });
             }));
 
-            logger.info(`[PRISMA] ${documentos.length} DOCUMENTOS CARGADOS PARA EL USUARIO`);
-            return res.status(200).json({ msg: 'DOCUMENTOS CARGADOS CORRECTAMENTE', documentos });
+            logger.info(`[PRISMA] ${documentos.length} NUEVOS DOCUMENTOS CARGADOS PARA EL USUARIO`);
+            return res.status(200).json({ msg: 'DOCUMENTOS ACTUALIZADOS CORRECTAMENTE', documentos });
         } else {
-            // Si no hay archivos, actualizamos los datos del usuario
-            const verifyEmail = await prisma.usuario.findUnique({ where: { email } });
+            // Verificar duplicado de email
+            const verifyEmail = await prisma.usuario.findUnique({
+                where: { email }
+            });
 
             if (verifyEmail && verifyEmail.id !== id) {
                 logger.warn('[PRISMA] EMAIL YA SE ENCUENTRA REGISTRADO!!!!');
                 return res.status(400).json({ msg: 'EMAIL YA SE ENCUENTRA REGISTRADO' });
             }
 
+            // Actualizar datos del usuario
             const updateUser = await prisma.usuario.update({
                 where: { id },
                 data: {
@@ -209,6 +218,7 @@ export const updateUser = async (req, res) => {
         return res.status(500).json({ msg: 'INTERNAL SERVER ERROR' });
     }
 };
+
 
 
 export const deleteUser = async (req, res ) => {
