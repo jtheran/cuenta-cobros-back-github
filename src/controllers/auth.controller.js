@@ -182,13 +182,37 @@ export const refreshToken = async (req, res) => {
 }
 
 // NUEVO ENDPOINT: /api/me
-export const getMe = (req, res) => {
+export const getMe = async (req, res) => {
     try {
+        let validateDocumentacion = false;
+        const user = await prisma.usuario.findUnique({
+            where: {
+                id: req.user.id,
+            }
+        });
+
+        if(!user){
+            logger.warn('[PRISMA] USUARIO NO ENCONTRADO O NO EXISTE!!!!');
+            return res.status(404).json({ msg: 'USUARIO NO ENCONTRADO O NO EXISTE' });
+        }
+
+        if (Array.isArray(user.documentos) && user.documentos.length > 0) {
+            validateDocumentacion = true;
+        }
+
         logger.info('[AUTH] Datos de usuario obtenidos exitosamente para /api/me');
         return res.status(200).json({
             msg: 'Datos de usuario obtenidos exitosamente',
-            user: req.user // Si llegamos aquí, req.user siempre estará disponible
+            user: { // Datos del usuario para que el frontend los guarde
+                id: req.user.id,
+                email: req.user.email,
+                role: req.user.role,
+                exp: req.user.exp,
+                iat: req.user.iat,
+                validateDocumentacion
+            },
         });
+
     } catch (err) {
         logger.error('[SERVER] ERROR INTERNO DEL SERVIDOR: ' + err.message);
         return res.status(500).json({ msg: 'ERROR INTERNO DEL SERVIDOR' });

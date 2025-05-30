@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
     "prisma:init": "prisma init --datasource-provider database",
     "prisma:migrate": "prisma migrate dev --name name-migration",
     "prisma:studio": "prisma studio",
