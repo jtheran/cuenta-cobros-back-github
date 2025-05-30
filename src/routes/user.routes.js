@@ -12,7 +12,7 @@ router.get('/user/:id', authenticateToken, authorizeRoles(['admin', 'contratista
 
 router.post('/user', authenticateToken, authorizeRoles(['admin']), createUser);
 
-router.put('/user/:id', authenticateToken, authorizeRoles(['admin']),  upload.array('files', 5), updateUser);
+router.put('/user/:id', authenticateToken, authorizeRoles(['admin', 'contratista']),  upload.array('files', 5), updateUser);
 
 router.delete('/user/:id', authenticateToken, authorizeRoles(['admin']), deleteUser);
 
