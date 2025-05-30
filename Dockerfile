@@ -1,13 +1,19 @@
-FROM node:18
+# Usa la versión 22 de Node.js
+FROM node:22
 
-WORKDIR /base
+# Establece el directorio de trabajo dentro del contenedor
+WORKDIR /app
 
+# Copia los archivos de dependencias primero para aprovechar el cache de Docker
 COPY package*.json ./
 
+# Instala las dependencias
 RUN npm install
 
+# Copia el resto del código
 COPY . .
 
-EXPOSE 4393
+# Expone el puerto del backend
+EXPOSE 4000
 
-CMD ["node", "index.js"]
+

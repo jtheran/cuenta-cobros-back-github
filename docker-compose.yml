@@ -4,12 +4,12 @@ services:
     build: .
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=mysql://db_user_lsv:db_pass_lsv@201.219.216.217:3324/db_lsv
+      - DATABASE_URL=mysql://root:root_pass_lsv@201.219.216.217:3324/db_lsv
     ports:
-      - '4393:4393'
+      - '3495:4000'
     volumes:
       - .:/base
       - /base/node_modules
-      - ./env_file:/base/.env
+      - ./.env:/base/.env
     command: >
-      sh -c "npx prisma migrate deploy && npx prima generate"
+      sh -c "npx prisma migrate deploy && npx prima generate && npm run start"
