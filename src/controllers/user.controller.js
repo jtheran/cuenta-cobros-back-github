@@ -146,6 +146,8 @@ export const createUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     try {
+        let archivos;
+        let sanitizedUser;
         const { id } = req.params;
         const {
             nombre,
@@ -190,46 +192,40 @@ export const updateUser = async (req, res) => {
             }));
 
             logger.info(`[PRISMA] ${documentos.length} NUEVOS DOCUMENTOS CARGADOS PARA EL USUARIO`);
-            return res.status(200).json({ msg: 'DOCUMENTOS ACTUALIZADOS CORRECTAMENTE', documentos });
+            archivos = documentos;
         } 
         
-        
-        if(
-            nombre !== null ||
-            apellido !== null ||
-            email !== null ||
-            documentoIdentidad !== null ||
-            tipoDocumento !== null
-        ){
-            // Verificar duplicado de email
-            const verifyEmail = await prisma.usuario.findUnique({
-                where: { email }
-            });
+        const camposActualizables = {};
+        if (nombre !== undefined) camposActualizables.nombre = nombre;
+        if (apellido !== undefined) camposActualizables.apellido = apellido;
+        if (email !== undefined) camposActualizables.email = email;
+        if (documentoIdentidad !== undefined) camposActualizables.documentoIdentidad = documentoIdentidad;
+        if (tipoDocumento !== undefined) camposActualizables.tipoDocumento = tipoDocumento;
+        if (telefono !== undefined) camposActualizables.telefono = telefono;
 
-            if (verifyEmail && verifyEmail.id !== id) {
-                logger.warn('[PRISMA] EMAIL YA SE ENCUENTRA REGISTRADO!!!!');
-                return res.status(400).json({ msg: 'EMAIL YA SE ENCUENTRA REGISTRADO' });
+        // Si hay algo para actualizar
+        if (Object.keys(camposActualizables).length > 0) {
+            // Verificar duplicado de email
+            if (camposActualizables.email) {
+                const verifyEmail = await prisma.usuario.findUnique({ where: { email: camposActualizables.email } });
+                if (verifyEmail && verifyEmail.id !== id) {
+                    logger.warn('[PRISMA] EMAIL YA SE ENCUENTRA REGISTRADO!!!!');
+                    return res.status(400).json({ msg: 'EMAIL YA SE ENCUENTRA REGISTRADO' });
+                }
             }
 
-            // Actualizar datos del usuario
+            // Actualizar usuario
             const updateUser = await prisma.usuario.update({
                 where: { id },
-                data: {
-                    nombre,
-                    apellido,
-                    email,
-                    tipoDocumento,
-                    documentoIdentidad,
-                    telefono,
-                }
+                data: camposActualizables
             });
 
             const { password, ...userSinPassword } = updateUser;
+            sanitizedUser = userSinPassword;
 
             logger.info('[PRISMA] DATOS DEL USUARIO ACTUALIZADOS EXITOSAMENTE!!!!!');
-            return res.status(200).json({ msg: 'DATOS DEL USUARIO ACTUALIZADOS EXITOSAMENTE', user: userSinPassword });
         }
-
+        return res.status(200).json({ msg: 'DATOS DEL USUARIO ACTUALIZADOS Y/O DOCUMENTOS ACTUALIZADOS', user: sanitizedUser, documentos: archivos });
     } catch (err) {
         logger.error('[SERVER] INTERNAL SERVER ERROR: ' + err.message);
         return res.status(500).json({ msg: 'INTERNAL SERVER ERROR' });
