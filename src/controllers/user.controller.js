@@ -33,8 +33,10 @@ export const getUsers = async (req, res ) => {
             return res.status(404).json({msg: 'USUARIOS NO ENCONTRADOS O NO EXISTEN'});
         }
 
+        const sanitizedUsers = users.map(({ password, ...rest }) => rest);
+
         logger.info('[PRISMA] LISTA DE USUARIOS!!!');
-        return res.status(200).json({msg: 'LISTA DE USUARIOS', user: users});
+        return res.status(200).json({msg: 'LISTA DE USUARIOS', user: sanitizedUsers});
     }catch(err){
         logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
         return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});
@@ -63,8 +65,10 @@ export const getUserByID = async (req, res ) => {
             return res.status(404).json({msg: 'USUARIO NO ENCONTRADO O NO EXISTE'});
         }
 
+        const { password, ...userSinPassword } = user;
+
         logger.info('[PRISMA] USUARIO ENCONTRADO!!!!');
-        return res.status(200).json({msg: 'USUARIO ENCONTRADO', user})
+        return res.status(200).json({msg: 'USUARIO ENCONTRADO', user: userSinPassword})
     }catch(err){
         logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
         return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});
@@ -130,8 +134,10 @@ export const createUser = async (req, res) => {
             );
         }
 
+        const { password, ...userSinPassword } = user;
+
         logger.info('[PRISMA] USUARIO CREADO EXITOSAMENTE!!!!!');
-        return res.status(201).json({msg: 'USUARIO CREADO EXITOSAMENTE', user});
+        return res.status(201).json({msg: 'USUARIO CREADO EXITOSAMENTE', user: userSinPassword });
     }catch(err){
         logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
         return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});
@@ -185,7 +191,16 @@ export const updateUser = async (req, res) => {
 
             logger.info(`[PRISMA] ${documentos.length} NUEVOS DOCUMENTOS CARGADOS PARA EL USUARIO`);
             return res.status(200).json({ msg: 'DOCUMENTOS ACTUALIZADOS CORRECTAMENTE', documentos });
-        } else {
+        } 
+        
+        
+        if(
+            nombre !== null ||
+            apellido !== null ||
+            email !== null ||
+            documentoIdentidad !== null ||
+            tipoDocumento !== null
+        ){
             // Verificar duplicado de email
             const verifyEmail = await prisma.usuario.findUnique({
                 where: { email }
@@ -209,8 +224,10 @@ export const updateUser = async (req, res) => {
                 }
             });
 
+            const { password, ...userSinPassword } = updateUser;
+
             logger.info('[PRISMA] DATOS DEL USUARIO ACTUALIZADOS EXITOSAMENTE!!!!!');
-            return res.status(200).json({ msg: 'DATOS DEL USUARIO ACTUALIZADOS EXITOSAMENTE', user: updateUser });
+            return res.status(200).json({ msg: 'DATOS DEL USUARIO ACTUALIZADOS EXITOSAMENTE', user: userSinPassword });
         }
 
     } catch (err) {
@@ -247,8 +264,10 @@ export const deleteUser = async (req, res ) => {
             return res.status(404).json({msg: 'USUARIO NO ELIMINADO'});
         }
 
+        const { password, ...userSinPassword } = deleteUser;
+
         logger.info('[PRISMA] USUARIO ELIMINADO EXITOSAMENTE!!!!');
-        return res.status(200).json({msg: 'USUARIO ELIMINADO EXITOSAMENTE', user})
+        return res.status(200).json({msg: 'USUARIO ELIMINADO EXITOSAMENTE', user: userSinPassword })
     }catch(err){
         logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
         return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});
