@@ -16,9 +16,17 @@ export  const getContrats = async (req, res) => {
         const contratos = await prisma.contrato.findMany({
             where: filtros,
             include: {
-                contratista: true,
-                cuentasCobro: true,
-                documentos: true
+                contratista: {
+                    include: {
+                        documentos: true
+                    }
+                },
+                cuentasCobro: {
+                    include: {
+                        documentos: true,
+                    }
+                },
+                documentos: true,
             }
         });
 
@@ -121,9 +129,15 @@ export const createContract = async (req, res) => {
             return res.status(404).json({msg: 'CREACION DE CONTRATO FALLIDA'});
         }
 
+        const contratista = await prisma.usuario.findUnique({
+            where: {
+                id: contrato.contratistaId
+            }
+        })
+
         await enviarNotificaciones(`CREACION DE CONTRATO # ${contrato.numero}`,
-            `CONTRATO CREADO Y ASIGNADO A: ${contrato.contratista.nombre}  ${contrato.contratista.apellido}`,
-            contrato.contratista
+            `CONTRATO CREADO Y ASIGNADO A: ${contratista.nombre}  ${contratista.apellido}`,
+            contratista
         );
 
         logger.info('[PRISMA] CREACION DE CONTRATO EXITOSA!!!!');
@@ -138,7 +152,6 @@ export const updateContract = async (req, res) => {
     try {
         const { id } = req.params; // ID del contrato a actualizar
         const { contratistaId: nuevoContratistaId } = req.query;
-        const archivos = req.files || []; // Asumiendo que usas multer o similar
 
         const contrato = await prisma.contrato.findUnique({
             where: { 
@@ -212,7 +225,7 @@ export const updateContract = async (req, res) => {
                 });
             }));
 
-            if(!documentosCreados){
+            if(!documentos){
                 logger.warn('[PRISMA] NO SE PUDIERON CARGAR LOS DOCUMENTOS!!!!');
                 return res.status(400).json({msg: 'NO SE PUDIERON CARGAR LOS DOCUMENTOS'});
             }
@@ -290,7 +303,10 @@ export const deleteContract = async (req, res) => {
             return res.status(404).json({msg: 'ELIMINACION DE CONTRATO FALLIDA'});
         }
 
-        await enviarNotificaciones(`SE HA ELIMINADO EL CONTRATO # ${deleteContrato.numero}`, `EL CONTRATO HA SIDO ELIMINADO POR PARTE DEL ADMIN DE LA PLATAFORMA`, deleteContrato.contratista);
+        await enviarNotificaciones(`SE HA ELIMINADO EL CONTRATO # ${deleteContrato.numero}`,
+            `EL CONTRATO HA SIDO ELIMINADO POR PARTE DEL ADMIN DE LA PLATAFORMA`,
+            deleteContrato.contratista
+        );
 
         logger.info('[PRISMA] CONTRATO ELIMINADO EXITOSAMENTE!!!');
         return res.status(200).json({msg: 'CONTRATO ELIMINADO EXITOSAMENTE', contrato: deleteContrato})

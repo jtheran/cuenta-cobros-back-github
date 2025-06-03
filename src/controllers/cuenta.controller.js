@@ -31,7 +31,7 @@ export const getCuentas = async (req, res) => {
                 pagos: true
             }
         });
-
+        cuentas
         if (!cuentas) {
             logger.warn('[PRISMA] CUENTAS DE COBRO NO ENCONTRADAS O NO EXISTEN!!!!!');
             return res.status(404).json({ msg: 'CUENTAS DE COBRO NO ENCONTRADAS O NO EXISTEN' });

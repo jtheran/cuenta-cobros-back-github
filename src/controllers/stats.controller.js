@@ -54,11 +54,14 @@ export const statsContratista = async (req, res) => {
             prisma.cuentaCobro.count({
                 where: {
                     id: filtros.contratistaId,
-                    estado: 'EN REVISION',
+                    estado: 'APROBADA',
                 }
             }),
             prisma.cuentaCobro.count({
-                where: filtros,
+                where: {
+                    id: filtros.contratistaId,
+                    estado: 'RECHAZADA',
+                },
             })
         ]);
 
@@ -68,8 +71,8 @@ export const statsContratista = async (req, res) => {
         }else{
             stats.contratos = statsUser[0]
             stats.cuentasRadicadas = statsUser[1]
-            stats.cuentasPendientes = statsUser[2]
-            stats.cuentas = statsUser[3]
+            stats.cuentasAprobadas = statsUser[2]
+            stats.cuentasRechazadas = statsUser[3]
         }
 
         logger.info('[PRISMA] STATS OBTENIDOS!!!');
