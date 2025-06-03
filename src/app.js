@@ -25,10 +25,7 @@ const server = http.createServer(app);
 //* MIDDLEWARES
 app.use(morgan('dev'));
 // Configuración de CORS - ¡MUY IMPORTANTE para el manejo de credenciales!
-app.use(cors({
-    origin: 'http://localhost:3000', // El origen de tu frontend Next.js
-    credentials: true, // Habilitar el envío de cookies y encabezados de autorización
-}));
+app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser()); // Usar el middleware de cookie-parser
 app.use(express.json());

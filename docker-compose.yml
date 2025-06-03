@@ -4,7 +4,6 @@ services:
     build: .
     environment:
       - NODE_ENV=development
-      - D_URL="mysql://root:rootpassword@localhost:3309/lsvDB"
       - DATABASE_URL=mysql://root:root_pass_lsv@201.219.216.217:3324/db_lsv
       - MAIL_HOST="server1.lsv-tech.com"
       - MAIL_PORT="465"
@@ -18,6 +17,5 @@ services:
       - '3495:3495'
     volumes:
       - .:/base
-      - /app/node_modules
     command: >
       sh -c "npx prisma migrate deploy && npx prisma generate && npm run start"

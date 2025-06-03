@@ -62,8 +62,16 @@ export const getContractByID = async (req, res) => {
         const contrato = await prisma.contrato.findUnique({
             where: filtros,
             include: {
-                contratista: true,
-                cuentasCobro: true,
+                contratista: {
+                    include: {
+                        documentos: true,
+                    }
+                },
+                cuentasCobro: {
+                    include: {
+                        documentos: true,
+                    }
+                },
                 documentos: true
             }
         });
