@@ -37,6 +37,12 @@ app.use(helmet({ contentSecurityPolicy: false }));
 //app.use(passport.initialize());
 //passport.use(passportJWT);
 
+// Sirve los archivos estáticos subidos por Multer
+app.use('/uploads', express.static('docs')); // <-- ¡AGREGA ESTA LÍNEA!
+// Esto significa que un archivo en 'docs/imagen.jpg'
+// será accesible en 'http://tu-backend/uploads/imagen.jpg'
+
+
 //* ROUTES
 app.use('/api', authRoutes);
 app.use('/api', maintenaceRoutes);

@@ -9,8 +9,8 @@ router.get('/stats-admin', authenticateToken, authorizeRoles(['admin']), statsAd
 
 router.get('/stats-contratista', authenticateToken, authorizeRoles(['admin', 'contratista']), statsContratista);
 
-router.get('stats-revisor', authenticateToken, authorizeRoles(['admin', 'revisor']), statsRevisor);
+router.get('/stats-revisor', authenticateToken, authorizeRoles(['admin', 'revisor']), statsRevisor);
 
-router.get('stats-financiero', authenticateToken, authorizeRoles(['admin', 'financiero']), statsFinanciero);
+router.get('/stats-financiero', authenticateToken, authorizeRoles(['admin', 'financiero']), statsFinanciero);
 
 export default router;
