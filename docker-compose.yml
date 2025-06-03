@@ -14,7 +14,7 @@ services:
       - KEY_SECRET="qwerty"
       - REFRESH_KEY="qazwer"
     ports:
-      - '3325:3495'
+      - '3325:3325'
     volumes:
       - .:/base
     command: >
