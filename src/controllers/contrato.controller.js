@@ -266,8 +266,8 @@ export const updateContract = async (req, res) => {
             };
 
         // Si no se envía contratistaId ni archivos, no se hace nada
-            logger.info('[PRISMA] NO HUBO CAMBIOS EN EL CONTRATO')
-            return res.status(200).json({ msg: 'NO HUBO CAMBIOS EN EL CONTRATO', contrato: contratoFormateado });
+            logger.info('[PRISMA] DOCUMENTOS CARGADOS O ACTUALIZADOS!!!!!');
+            return res.status(200).json({ msg: 'DOCUMENTOS CARGADOS O ACTUALIZADOS', contrato: contratoFormateado });
         }
 
         logger.info('[PRISMA] NO HUBO CAMBIOS EN EL CONTRATO')
