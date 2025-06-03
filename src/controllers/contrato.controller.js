@@ -209,6 +209,11 @@ export const updateContract = async (req, res) => {
         // Si se reciben archivos, subirlos y cambiar estado a ACTIVO
         if(req.files && req.files.length > 0){
             // Subir documentos a la tabla Documento
+
+            await prisma.documento.deleteMany({
+                where: { contratoId: contrato.id }
+            });
+            
             const documentos = await Promise.all(req.files.map(async (file) => {
                 return await prisma.documento.create({
                     data: {
@@ -216,9 +221,9 @@ export const updateContract = async (req, res) => {
                         url: `/docs/${file.filename}`,
                         tipo: file.mimetype,
                         descripcion: req.body.descripcion || 'SIN DESCRIPCION',
-                        usuario: {
+                        contrato: {
                             connect: { 
-                                id: user.id
+                                id: contrato.id
                             }
                         }
                     }
