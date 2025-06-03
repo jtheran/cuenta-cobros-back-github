@@ -114,6 +114,7 @@ export const createCuenta = async (req, res) => {
             select: {
                 id: true,
                 documentosRequeridos: true,
+                contratista: true,
             }
         });
 
@@ -140,7 +141,7 @@ export const createCuenta = async (req, res) => {
                 descripcionActividades: descripcion,
                 numeroCuenta: await generarNumeroCuenta(),
                 datosBancarios: parsedDatosBancarios,
-                estado: 'PENDIENTE',
+                estado: 'RADICADA',
                 documentosRequeridos: contrato.documentosRequeridos,
             },
         });
@@ -172,7 +173,7 @@ export const createCuenta = async (req, res) => {
         await enviarNotificaciones(
             `CREACION DE CUENTA DE COBRO # ${cuenta.numeroCuenta}`,
             `SE HA CREADO LA CUENTA DE COBRO CON # ${cuenta.numeroCuenta} EN ESTADO DE ${cuenta.estado}`,
-            cuenta.contratista
+            contrato.contratista
         );
 
         logger.info('[PRISMA] CREACION DE CUENTA DE COBRO EXITOSA!!!!');
