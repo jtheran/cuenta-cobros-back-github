@@ -6,11 +6,11 @@ services:
       - NODE_ENV=development
       - DATABASE_URL=mysql://root:root_pass_lsv@201.219.216.217:3324/db_lsv
       - MAIL_HOST="server1.lsv-tech.com"
-      - MAIL_PORT="465"
+      - MAIL_PORT=465
       - EMAIL_ADMIN="qa@lsv-tech.com"
       - PASS_EMAIL_ADMIN="o].tGf)%=$GK"
       - PASS_ADMIN="Testing24@"
-      - PORT="3495"
+      - PORT=3495
       - KEY_SECRET="qwerty"
       - REFRESH_KEY="qazwer"
     ports:
