@@ -10,7 +10,7 @@ router.get('/cuenta', authenticateToken, authorizeRoles(['admin', 'contratista',
 
 router.get('/cuenta/:id', authenticateToken, authorizeRoles(['admin', 'contratista', 'revisor', 'financiero']), getCuentaByID);
 
-router.post('/cuenta',authenticateToken, authorizeRoles(['contratista']), upload.array('files', 5), createCuenta
+router.post('/cuenta',authenticateToken, authorizeRoles(['contratista', 'admin']), upload.array('files', 5), createCuenta
 );
 router.put('/cuenta/:id', authenticateToken, authorizeRoles(['admin','revisor', 'financiero']), upload.array('files', 5), updateCuenta);
 
