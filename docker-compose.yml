@@ -10,11 +10,11 @@ services:
       - EMAIL_ADMIN="qa@lsv-tech.com"
       - PASS_EMAIL_ADMIN="o].tGf)%=$GK"
       - PASS_ADMIN="Testing24@"
-      - PORT=3495
+      - PORT=3325
       - KEY_SECRET="qwerty"
       - REFRESH_KEY="qazwer"
     ports:
-      - '3495:3495'
+      - '3325:3495'
     volumes:
       - .:/base
     command: >

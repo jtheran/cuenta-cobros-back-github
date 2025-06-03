@@ -1,7 +1,7 @@
 $IMAGE_NAME = "salasrandy89/cuentas-cobro-backend:latest"
 $VPS_USER = "lsv"
 $VPS_IP = 201.219.216.217
-$REMOTE_DIR = "project/backend/"
+$REMOTE_DIR = "projects/cuenta-cobro-back/"
 $PORT = 3323
 
 # Construir la imagen de Docker
