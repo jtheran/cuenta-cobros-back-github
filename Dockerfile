@@ -14,6 +14,6 @@ RUN npm install
 COPY . .
 
 # Expone el puerto del backend
-EXPOSE 4000
+EXPOSE 3495
 
 
