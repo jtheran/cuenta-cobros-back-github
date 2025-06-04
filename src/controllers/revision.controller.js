@@ -177,7 +177,7 @@ export const updateRevision = async (req, res) => {
         );
 
         logger.info('[PRISMA] ACTUALIZACION DE REVISION Y CUANTA DE COBRO EXITOSA!!!!');
-        return res.status(200).json({msg: 'ACTUALIZACION DE REVISION Y CUENTA DE COBRO EXITOSA', revision: updateRevision[0]});
+        return res.status(200).json({msg: 'ACTUALIZACION DE REVISION Y CUENTA DE COBRO EXITOSA', revision: updateRevision[0], cuenta: updateRevision[1]});
     }catch(err){
         logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
         return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});

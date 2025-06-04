@@ -249,6 +249,14 @@ export const deleteUser = async (req, res ) => {
             return res.status(404).json({msg: 'USUARIO NO ENCONTRADO O NO EXISTE'});
         }
 
+        await prisma.cuentaCobro.deleteMany({
+            where: { contratistaId: user.id }
+        });
+
+        await prisma.documento.deleteMany({
+            where: { usuarioId: user.id }
+        });
+
         const deleteUser = await prisma.usuario.delete({
             where: {
                 id: user.id

@@ -7,7 +7,23 @@ const prisma = new PrismaClient();
 
 export const getPagos = async (req, res) => {
     try{
-        const pagos = await prisma.pago.findMany();
+        const filtros = {};
+
+        if (req.user.role === 'financiero') {
+            filtros.financieroId = req.user.id;
+        }
+        const pagos = await prisma.pago.findMany({
+            where: filtros,
+            include: {
+                cuentaCobro: {
+                    include: {
+                        documentos: true,
+                        contrato: true
+                    }
+                },
+                financiero:  true,
+            }
+        });
 
         if(!pagos){
             logger.warn('[PRISMA] PAGOS NO ENCONTRADOS O NO EXISTEN!!!');
@@ -25,14 +41,24 @@ export const getPagos = async (req, res) => {
 export const getPagoByID = async (req, res) => {
     try{
         const pagoID = req.params.id;
+        const filtros = {
+            id: pagoID,
+        };
+
+        if (req.user.role === 'financiero') {
+            filtros.financieroId = req.user.id;
+        }
 
         const pago = await prisma.pago.findUnique({
-            where: {
-                id: pagoID,
-            },
+            where: filtros,
             include: {
-                cuentaCobro: true,
-                financiero: true,
+                cuentaCobro: {
+                    include: {
+                        documentos: true,
+                        contrato: true
+                    }
+                },
+                financiero:  true,
             }
         });
 
@@ -63,6 +89,7 @@ export const createPago = async (req, res) => {
                     valor,
                     metodoPago,
                     cuentaCobroId,
+                    financieroId: req.user.id,
                     estado: 'REVISION',
                 },
                 include: {
@@ -104,6 +131,13 @@ export const updatePago = async (req, res) => {
     try{
         let status;
         const pagoID = req.params.id;
+        const filtros = {
+            id: pagoID,
+        };
+
+        if (req.user.role === 'financiero') {
+            filtros.financieroId = req.user.id;
+        }
         const {
             estado,
             observaciones,
@@ -121,9 +155,7 @@ export const updatePago = async (req, res) => {
 
         const pago = await prisma.$transaction([
             prisma.pago.update({
-                where: {
-                    id: pagoID,
-                },
+                where: filtros,
                 data: {
                     estado,
                     observaciones,
