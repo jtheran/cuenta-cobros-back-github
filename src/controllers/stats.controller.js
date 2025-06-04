@@ -32,56 +32,54 @@ export const statsAdmin = async (req, res) => {
 }
 
 export const statsContratista = async (req, res) => {
-    try{
-        const filtros = {};
-        let stats = {};
+  try {
+    const filtros = {};
+    let stats = {};
 
-        if (req.user.role === 'contratista') {
-            filtros.contratistaId = req.user.id;
-        }
-
-
-        const statsUser = await prisma.$transaction([
-            prisma.contrato.count({
-                where: filtros
-            }),
-            prisma.cuentaCobro.count({
-                where: {
-                    id: filtros.contratistaId,
-                    estado: 'RADICADA',
-                }
-            }),
-            prisma.cuentaCobro.count({
-                where: {
-                    id: filtros.contratistaId,
-                    estado: 'APROBADA',
-                }
-            }),
-            prisma.cuentaCobro.count({
-                where: {
-                    id: filtros.contratistaId,
-                    estado: 'RECHAZADA',
-                },
-            })
-        ]);
-
-        if(!stats){
-            logger.warn('[PRISMA] STATS NO OBTENIDOS!!!!');
-            return res.status(400).json({msg: 'STATS NO OBTENIDOS'});
-        }else{
-            stats.contratos = statsUser[0]
-            stats.cuentasRadicadas = statsUser[1]
-            stats.cuentasAprobadas = statsUser[2]
-            stats.cuentasRechazadas = statsUser[3]
-        }
-
-        logger.info('[PRISMA] STATS OBTENIDOS!!!');
-        return res.status(200).json({msg: 'STATS OBTENIDOS', stats});
-    }catch(err){
-        logger.error('[SERVER] INTERNAL SERVER ERROR: ' + err.message);
-        return res.status(500).json({ msg: 'INTERNAL SERVER ERROR' });
+    if (req.user.role === 'contratista') {
+      filtros.contratistaId = req.user.id;
     }
-}
+
+    const statsUser = await prisma.$transaction([
+      prisma.contrato.count({
+        where: {
+          contratistaId: filtros.contratistaId,  // ✅ Campo correcto
+          estado: 'ACTIVO',
+        },
+      }),
+      prisma.cuentaCobro.count({
+        where: {
+          contratistaId: filtros.contratistaId,  // ✅ Campo correcto
+          estado: 'RADICADA',
+        },
+      }),
+      prisma.cuentaCobro.count({
+        where: {
+          contratistaId: filtros.contratistaId,
+          estado: 'APROBADA',
+        },
+      }),
+      prisma.cuentaCobro.count({
+        where: {
+          contratistaId: filtros.contratistaId,
+          estado: 'RECHAZADA',
+        },
+      }),
+    ]);
+
+    stats.contratos = statsUser[0];
+    stats.cuentasRadicadas = statsUser[1];
+    stats.cuentasAprobadas = statsUser[2];
+    stats.cuentasRechazadas = statsUser[3];
+
+    logger.info('[PRISMA] STATS OBTENIDOS!!!');
+    return res.status(200).json({ msg: 'STATS OBTENIDOS', stats });
+  } catch (err) {
+    logger.error('[SERVER] INTERNAL SERVER ERROR: ' + err.message);
+    return res.status(500).json({ msg: 'INTERNAL SERVER ERROR' });
+  }
+};
+
 
 export const statsRevisor = async (req, res) => {
     try{
@@ -110,7 +108,9 @@ export const statsRevisor = async (req, res) => {
             }),
             prisma.cuentaCobro.count(),
             prisma.revision.count({
-                where: filtros,
+                where: {
+                    revisorId: filtros.revisorId,
+                },
             })
         ]);
 
@@ -160,7 +160,9 @@ export const statsFinanciero = async (req, res) => {
             }),
             prisma.cuentaCobro.count(),
             prisma.pago.count({
-                where: filtros,
+                where: {
+                    financieroId: filtros.financieroId,
+                },
             })
         ]);
 
