@@ -249,6 +249,19 @@ export const deleteUser = async (req, res ) => {
             return res.status(404).json({msg: 'USUARIO NO ENCONTRADO O NO EXISTE'});
         }
 
+        const contratos = await prisma.contrato.findMany({
+            where: {
+            contratistaId: user.id
+            }
+        });
+
+        if(contratos.length > 0){
+            logger.warn('[PRISMA] USUARIO TODAVIA TIENE CONTRATOS ASIGNADOS')
+            return res.status(400).json({
+                msg: 'USUARIO TODAVIA TIENE CONTRATOS ASIGNADOS'
+            });
+        }
+
         await prisma.cuentaCobro.deleteMany({
             where: { contratistaId: user.id }
         });

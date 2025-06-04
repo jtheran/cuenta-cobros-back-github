@@ -58,8 +58,8 @@ model Contrato {
   fechaActualizacion    DateTime    @updatedAt
 
   // Relaciones
-  contratista           Usuario     @relation("Contratista", fields: [contratistaId], references: [id])
-  contratistaId         String
+  contratista           Usuario?     @relation("Contratista", fields: [contratistaId], references: [id], onDelete: SetNull)
+  contratistaId         String?
   cuentasCobro          CuentaCobro[]
   documentos            Documento[]
 
