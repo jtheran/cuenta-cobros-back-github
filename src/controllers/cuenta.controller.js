@@ -159,6 +159,7 @@ export const createCuenta = async (req, res) => {
                 datosBancarios: parsedDatosBancarios,
                 estado: 'RADICADA',
                 documentosRequeridos: contrato.documentosRequeridos,
+                fechaRadicacion: new Date(),
             },
             include: {
                 contratista: {

@@ -15,12 +15,21 @@ export const getPagos = async (req, res) => {
         const pagos = await prisma.pago.findMany({
             where: filtros,
             include: {
-                cuentaCobro: {
-                    include: {
-                        documentos: true,
-                        contrato: true
-                    }
-                },
+                    cuentaCobro: {
+                        include: {
+                            documentos: true,
+                            contratista: {
+                                include:{
+                                    documentos: true,
+                                }
+                            },
+                            contrato: {
+                                include: {
+                                    documentos: true,
+                                }
+                            } 
+                        }
+                    },
                 financiero:  true,
             }
         });
@@ -52,12 +61,21 @@ export const getPagoByID = async (req, res) => {
         const pago = await prisma.pago.findUnique({
             where: filtros,
             include: {
-                cuentaCobro: {
-                    include: {
-                        documentos: true,
-                        contrato: true
-                    }
-                },
+                    cuentaCobro: {
+                        include: {
+                            documentos: true,
+                            contratista: {
+                                include:{
+                                    documentos: true,
+                                }
+                            },
+                            contrato: {
+                                include: {
+                                    documentos: true,
+                                }
+                            } 
+                        }
+                    },
                 financiero:  true,
             }
         });
@@ -90,10 +108,24 @@ export const createPago = async (req, res) => {
                     metodoPago,
                     cuentaCobroId,
                     financieroId: req.user.id,
-                    estado: 'REVISION',
+                    estado: 'INIICADO',
                 },
                 include: {
-                    cuentaCobro: true,
+                    cuentaCobro: {
+                        include: {
+                            documentos: true,
+                            contratista: {
+                                include:{
+                                    documentos: true,
+                                }
+                            },
+                            contrato: {
+                                include: {
+                                    documentos: true,
+                                }
+                            } 
+                        }
+                    },
                     financiero: true,
                 }
             }),
@@ -113,7 +145,8 @@ export const createPago = async (req, res) => {
             return res.status(400).json({msg: 'CREACION DEL PAGO FALLIDO'});
         }else{
             await enviarNotificaciones(`SE HA CREADO EL PAGO DE LA CUENTA DE COBRO # ${pago[1].numeroCuenta}`,
-                `SE HA INICIADO EL PROCESO PARA REALIZAR EL PAGO DE LA CUENTA DE COBRO # ${pago[1].numeroCuenta} DEL CONTRATO # ${pago[1].contrato.numero}`,
+                `SE HA INICIADO EL PROCESO PARA REALIZAR EL PAGO DE LA CUENTA DE COBRO # ${pago[1].numeroCuenta} DEL CONTRATO # ${pago[1].contrato.numero}<br>
+                POR PARTE DEL FINANCIERO ${pago[0].financiero.nombre} ${pago[0].financiero.apellido}`,
                 pago[1].contratista
             );
             logger.info('[NOTIFICACION] SE HA ENVIADO NOTIFICACION!!!!');
@@ -164,7 +197,21 @@ export const updatePago = async (req, res) => {
                     fechaPago,
                 },
                 include: {
-                    cuentaCobro: true,
+                    cuentaCobro: {
+                        include: {
+                            documentos: true,
+                            contratista: {
+                                include:{
+                                    documentos: true,
+                                }
+                            },
+                            contrato: {
+                                include: {
+                                    documentos: true,
+                                }
+                            } 
+                        }
+                    },
                     financiero: true,
                 }
             }),

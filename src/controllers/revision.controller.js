@@ -121,11 +121,11 @@ export const createRevision = async (req, res) => {
             return res.status(400).json({msg: 'CREACION DE REVISION FALLIDA'});
         }
 
-        await enviarNotificaciones(`REVISION CREADA PARA LA CUENTA DE COBRO # ${revision[1].cuentaCobro.numeroCuenta}`,
-            `SE HA CREADO LA REVISION PARA LA CUENTA DE COBRO # ${revision[1].cuentaCobro.numeroCuenta} POR PARTE DEL REVSIOR ${revision[0].revisor.nombre} ${revision[0].revisor.apellido}<br>
+        await enviarNotificaciones(`REVISION CREADA PARA LA CUENTA DE COBRO # ${revision[1].numeroCuenta}`,
+            `SE HA CREADO LA REVISION PARA LA CUENTA DE COBRO # ${revision[1].numeroCuenta} POR PARTE DEL REVSIOR ${revision[0].revisor.nombre} ${revision[0].revisor.apellido}<br>
             POR LAS SIGUIENTES OBSERVACIONES SE HA ${revision[1].estado} LA CUENTA DE COBRO<br>
             ${revision[0].observaciones}`,
-            revision[1].cuentaCobro.contratista
+            revision[1].contratista
         );
 
         logger.info('[PRISMA] CREACION DE REVISION EXITOSA!!!');

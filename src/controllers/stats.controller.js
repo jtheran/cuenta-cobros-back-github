@@ -170,7 +170,7 @@ export const statsFinanciero = async (req, res) => {
             logger.warn('[PRISMA] STATS NO OBTENIDOS!!!!');
             return res.status(400).json({msg: 'STATS NO OBTENIDOS'});
         }else{
-            stats.cuentasRadicadas = statsUser[0]
+            stats.cuentasPagadas = statsUser[0]
             stats.cuentasAprobadas = statsUser[1]
             stats.cuentasRechazadas = statsUser[2]
             stats.cuentas = statsUser[3]
