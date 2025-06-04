@@ -6,3 +6,4 @@ package-lock.json
 generated
 src/logs/logger.log
 /docs/*.*
+deploy.sh
