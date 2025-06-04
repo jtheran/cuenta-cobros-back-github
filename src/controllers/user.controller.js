@@ -20,12 +20,18 @@ export const getUsers = async (req, res ) => {
         const users = await prisma.usuario.findMany({
             where: filtros,
             include: {
-                contratos: true,
-                cuentasCobro: true,
-                revisiones: true,
-                pagos: true,
-                documentos: true,
-            }
+                    contratos: {
+                        where: {
+                            contratistaId: {
+                                not: null // o igual a user.id para forzarlo
+                            }
+                        }
+                    },
+                    cuentasCobro: true,
+                    revisiones: true,
+                    pagos: true,
+                    documentos: true,
+                }   
         });
 
         if(!users){

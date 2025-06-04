@@ -159,7 +159,7 @@ export const createContract = async (req, res) => {
 export const updateContract = async (req, res) => {
     try {
         const { id } = req.params; // ID del contrato a actualizar
-        const { contratistaId: nuevoContratistaId } = req.query;
+        const { contratistaId } = req.query;
 
         const contrato = await prisma.contrato.findUnique({
             where: { 
@@ -178,13 +178,13 @@ export const updateContract = async (req, res) => {
         }
 
         // Si se proporciona contratistaId y es diferente del actual
-        if (nuevoContratistaId && nuevoContratistaId !== contrato.contratistaId) {
+        if(contratistaId) {
             const contratoActualizado = await prisma.contrato.update({
                 where: { 
                     id 
                 },
                 data: {
-                    contratistaId: nuevoContratistaId,
+                    contratistaId,
                     fechaActualizacion: new Date(),
                     estado: 'ASIGNADO',
                 },
@@ -202,11 +202,6 @@ export const updateContract = async (req, res) => {
                 `SE HA ASIGNADO COMO NUEVO CONTRATISTA DEL CONTRATO # ${contratoActualizado.numero}, 
                 POR FAVOR ACTUALIZAR LA DOCUMENTACION DEL CONTRATO`,
                 contratoActualizado.contratista
-            );
-
-            await enviarNotificaciones(`CAMBIO DE ASIGNACION EN CONTRATO # ${contrato.numero}`,
-                `SE HA QUITADO SU ASIGNACION DEL CONTRATO # ${contrato.numero}`,
-                contrato.contratista
             );
 
             logger.info('[PRISMA] CONTRATISTA ASIGNADO AL CONTRATO ACTUALIZADO!!!!');
