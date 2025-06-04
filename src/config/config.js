@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const config = {
-    port: process.env.PORT || 3325,
+    port: 3325,
     key: process.env.KEY_SECRET || 'qwerty',
     refreshKey: process.env.REFRESH_KEY || 'qazwer',
     hostMail: process.env.MAIL_HOST || 'server1.lsv-tech.com',

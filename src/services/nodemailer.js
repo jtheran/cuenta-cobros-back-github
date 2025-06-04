@@ -12,9 +12,10 @@ const transporter = nodemailer.createTransport({
     host: 'server1.lsv-tech.com',   
     port: 465,                    
     secure: true,
-    auth: { user: config.adminEmail, 
-            pass: config.passAdminEmail
-        }
+    auth: { 
+        user: 'qa@lsv-tech.com', 
+        pass: "o].tGf)%=$GK"
+    }
 });
 
 export const sendEmail = async (to, subject, text, name = 'USUARIO' ) => {
