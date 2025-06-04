@@ -66,40 +66,70 @@ export const getRevisionByID = async (req, res) => {
 export const createRevision = async (req, res) => {
     try{
         const revisorID = req.user.id;
-        const estado = 'INICIADA';
+        const estado = 'REVISADA';
         const {
             cuentaCobroId,
+            estadoCuenta,
+            observaciones,
         } = req.body;
 
-        const revision = await prisma.revision.create({
-            data: {
-                cuentaCobroId,
-                estado,
-                revisorId: revisorID,
-            },
-            include: {
-                cuentaCobro: {
-                    include: {
-                        contratista: true
-                    }
+        const revision = await prisma.$transaction([
+            prisma.revision.create({
+                data: {
+                    cuentaCobroId,
+                    observaciones,
+                    estado,
+                    revisorId: revisorID,
                 },
-                comentarios: true,
-                revisor: true
-            }
-        });
+                include: {
+                    cuentaCobro: {
+                        include: {
+                            contratista: true
+                        }
+                    },
+                    comentarios: true,
+                    revisor: true
+                }
+            }),
+            prisma.cuentaCobro.update({
+                where: {
+                    id: cuentaCobroId,
+                },
+                data: {
+                    estado: estadoCuenta
+                },
+                include: {
+                    contratista: {
+                        include: {
+                            documentos: true
+                        }
+                    },
+                    contrato: {
+                        include: {
+                            documentos: true,
+                        }
+                    },
+                    documentos: true,
+                    pagos: true,
+                    revisiones: true,
+                }
+            })
+        ]);
 
         if(!revision){
             logger.warn('[PRISMA] CREACION DE REVISION FALLIDA!!!');
             return res.status(400).json({msg: 'CREACION DE REVISION FALLIDA'});
         }
 
-        await enviarNotificaciones(`REVISION CREADA PARA LA CUENTA DE COBRO # ${revision.cuentaCobro.numeroCuenta}`,
-            `SE HA CREADO LA REVISION PARA LA CUENTA DE COBRO # ${revision.cuentaCobro.numeroCuenta} POR PARTE DEL REVSION ${revision.revisor.nombre} ${revision.revisor.apellido}`,
-            revision.cuentaCobro.contratista
+        await enviarNotificaciones(`REVISION CREADA PARA LA CUENTA DE COBRO # ${revision[1].cuentaCobro.numeroCuenta}`,
+            `SE HA CREADO LA REVISION PARA LA CUENTA DE COBRO # ${revision[1].cuentaCobro.numeroCuenta} POR PARTE DEL REVSIOR ${revision[0].revisor.nombre} ${revision[0].revisor.apellido}<br>
+            POR LAS SIGUIENTES OBSERVACIONES SE HA ${revision[1].estado} LA CUENTA DE COBRO<br>
+            ${revision[0].observaciones}`,
+            revision[1].cuentaCobro.contratista
         );
 
         logger.info('[PRISMA] CREACION DE REVISION EXITOSA!!!');
-        return res.status(200).json({msg: 'CREACION DE REVISION EXITOSA', revision});
+        return res.status(200).json({msg: 'CREACION DE REVISION EXITOSA', revision: revision[0], cuenta: revision[1]});
     }catch(err){
         logger.error('[SERVER] INTERNAL SERVER ERROR: '+err.message);
         return res.status(500).json({msg:  'INTERNAL SERVER ERROR'});
@@ -109,10 +139,10 @@ export const createRevision = async (req, res) => {
 export const updateRevision = async (req, res) => {
     try{
         const revisionID = req.params.id;
-        const estado = 'REVISADA';
         const {
             observaciones,
             estadoCuenta,
+            estadoRevision,
         } = req.body;
 
         const revision = await prisma.revision.findUnique({
@@ -142,7 +172,7 @@ export const updateRevision = async (req, res) => {
                 },
                 data: {
                     observaciones,
-                    estado
+                    estado: estadoRevision, 
                 },
                 include: {
                     cuentaCobro: true,

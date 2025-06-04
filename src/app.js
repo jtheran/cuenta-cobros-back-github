@@ -25,7 +25,7 @@ const server = http.createServer(app);
 //* MIDDLEWARES
 // Configuración de CORS - ¡MUY IMPORTANTE para el manejo de credenciales!
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://201.219.216.217:3326');
+  res.header('Access-Control-Allow-Origin', 'https://cuenta-cobro.lsv-tech.com');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');

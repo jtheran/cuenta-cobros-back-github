@@ -24,8 +24,16 @@ export const getCuentas = async (req, res) => {
         const cuentas = await prisma.cuentaCobro.findMany({
             where: filtros,
             include: {
-                contratista: true,
-                contrato: true,
+                contratista: {
+                    include: {
+                        documentos: true,
+                    }
+                },
+                contrato: {
+                    include: {
+                        documentos: true
+                    }
+                },
                 revisiones: true,
                 documentos: true,
                 pagos: true
@@ -68,8 +76,16 @@ export const getCuentaByID = async (req, res) => {
         const cuenta = await prisma.cuentaCobro.findUnique({
             where: filtros,
             include: {
-                contratista: true,
-                contrato: true,
+                contratista: {
+                    include: {
+                        documentos: true,
+                    }
+                },
+                contrato: {
+                    include: {
+                        documentos: true
+                    }
+                },
                 revisiones: true,
                 documentos: true,
                 pagos: true
@@ -144,6 +160,21 @@ export const createCuenta = async (req, res) => {
                 estado: 'RADICADA',
                 documentosRequeridos: contrato.documentosRequeridos,
             },
+            include: {
+                contratista: {
+                    include: {
+                        documentos: true,
+                    }
+                },
+                contrato: {
+                    include: {
+                        documentos: true
+                    }
+                },
+                revisiones: true,
+                documentos: true,
+                pagos: true,
+            }
         });
 
         if (!cuenta) {
