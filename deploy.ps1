@@ -5,7 +5,7 @@ $REMOTE_DIR = "projects/cuenta-cobro-back/"
 $PORT = 3323
 
 # Construir la imagen de Docker
-docker-compose build
+docker-compose build --no-cache
 Write-Output "Imagen de Docker construida."
 
 # # Etiquetar la imagen

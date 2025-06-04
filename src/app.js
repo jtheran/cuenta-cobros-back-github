@@ -25,7 +25,12 @@ const server = http.createServer(app);
 //* MIDDLEWARES
 app.use(morgan('dev'));
 // Configuración de CORS - ¡MUY IMPORTANTE para el manejo de credenciales!
-app.use(cors());
+app.use(cors({
+  origin: 'http://201.219.216.217:3326',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser()); // Usar el middleware de cookie-parser
 app.use(express.json());
