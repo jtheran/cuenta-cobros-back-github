@@ -23,14 +23,29 @@ const app = express();
 const server = http.createServer(app);
 
 //* MIDDLEWARES
-app.use(morgan('dev'));
 // Configuración de CORS - ¡MUY IMPORTANTE para el manejo de credenciales!
-app.use(cors({
-  origin: 'http://201.219.216.217:3326',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-}));
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://201.219.216.217:3326');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204); // Responder correctamente a la preflight
+  }
+  next();
+});
+
+app.use((req, res, next) => {
+  console.log('[CORS DEBUG] Headers:', res.getHeaders());
+  next();
+});
+// app.use(cors({
+//   origin: 'http://201.219.216.217:3326',
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization'],
+//   credentials: true,
+// }));
+app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser()); // Usar el middleware de cookie-parser
 app.use(express.json());
